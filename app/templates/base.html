@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Ledgerly{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/dist.css">
+  <script src="/static/js/htmx.min.js" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+  {% from "macros/icons.html" import icon %}
+  <nav class="bg-white border-b border-gray-200 px-6 py-3">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <a href="/" class="text-lg font-bold text-indigo-600">Ledgerly</a>
+      <div class="flex gap-6 text-sm font-medium">
+        <a href="/upload" class="flex items-center gap-1.5 hover:text-indigo-600 {% if active_tab == 'upload' %}text-indigo-600{% else %}text-gray-600{% endif %}">
+          {{ icon("upload", "w-4 h-4") }} Upload
+        </a>
+        <a href="/queue" class="flex items-center gap-1.5 hover:text-indigo-600 {% if active_tab == 'queue' %}text-indigo-600{% else %}text-gray-600{% endif %}">
+          {{ icon("inbox", "w-4 h-4") }} Queue
+        </a>
+        <a href="/history" class="flex items-center gap-1.5 hover:text-indigo-600 {% if active_tab == 'history' %}text-indigo-600{% else %}text-gray-600{% endif %}">
+          {{ icon("book-open", "w-4 h-4") }} History
+        </a>
+        <a href="/suppliers" class="flex items-center gap-1.5 hover:text-indigo-600 {% if active_tab == 'suppliers' %}text-indigo-600{% else %}text-gray-600{% endif %}">
+          {{ icon("users", "w-4 h-4") }} Suppliers
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 max-w-5xl mx-auto w-full px-6 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="text-center text-xs text-gray-400 py-4">
+    Ledgerly -- Invoice processing for accountants
+  </footer>
+</body>
+</html>
