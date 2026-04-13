@@ -25,6 +25,7 @@ dev = [
     "pytest-asyncio",
     "playwright",
     "ruff",
+    "reportlab",
 ]
 
 [tool.setuptools.packages.find]
