@@ -22,8 +22,7 @@
     --color-border-strong: #d1d5db;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
+  html.dark {
       --color-surface: #0f1117;
       --color-surface-raised: #1a1d23;
       --color-surface-sunken: #0a0c10;
@@ -48,7 +47,6 @@
       --color-info-text: #38bdf8;
       --color-neutral-bg: #2a2d35;
       --color-neutral-text: #9ca3af;
-    }
   }
 
   :root {

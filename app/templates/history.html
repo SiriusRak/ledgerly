@@ -44,34 +44,32 @@
 </div>
 <div id="recap-container"></div>
 
-{# ── Filter bar ── #}
-<form method="get" action="/history" class="card px-3 py-3 sm:px-4 sm:py-3 mb-4 sm:mb-6">
+{# ── Filter bar (client-side, instant) ── #}
+<div class="card px-3 py-3 sm:px-4 sm:py-3 mb-4 sm:mb-6">
   <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-    <select name="month" class="input-field text-xs sm:text-sm" onchange="this.form.submit()">
+    <select id="filter-month" class="input-field text-xs sm:text-sm">
       <option value="">All months</option>
       {% for m in all_months %}
-      <option value="{{ m }}" {% if filter_month == m %}selected{% endif %}>{{ m }}</option>
+      <option value="{{ m }}">{{ m }}</option>
       {% endfor %}
     </select>
 
-    <select name="supplier_id" class="input-field text-xs sm:text-sm" onchange="this.form.submit()">
+    <select id="filter-supplier" class="input-field text-xs sm:text-sm">
       <option value="">All suppliers</option>
       {% for s in all_suppliers %}
-      <option value="{{ s.id }}" {% if supplier_id == s.id %}selected{% endif %}>{{ s.name }}</option>
+      <option value="{{ s.name|lower }}">{{ s.name }}</option>
       {% endfor %}
     </select>
 
-    <select name="classification" class="input-field text-xs sm:text-sm" onchange="this.form.submit()">
+    <select id="filter-status" class="input-field text-xs sm:text-sm">
       <option value="">All status</option>
-      <option value="auto" {% if filter_classification == 'auto' %}selected{% endif %}>Auto</option>
-      <option value="manual" {% if filter_classification == 'manual' %}selected{% endif %}>Manual</option>
+      <option value="auto">Auto</option>
+      <option value="manual">Manual</option>
     </select>
 
-    {% if filter_month or supplier_id or filter_classification %}
-    <a href="/history" class="text-xs underline whitespace-nowrap" style="color: var(--color-accent);">{{ icon("x-circle", "w-3.5 h-3.5 inline") }} Clear filters</a>
-    {% endif %}
+    <a href="#" id="filter-clear" class="text-xs underline whitespace-nowrap" style="color: var(--color-accent); display:none;">{{ icon("x-circle", "w-3.5 h-3.5 inline") }} Clear</a>
   </div>
-</form>
+</div>
 
 {% if invoices %}
 {# Mobile: card list. Desktop: table #}
@@ -172,6 +170,52 @@
 
 <script>
 (function () {
+  /* --- Client-side filtering --- */
+  var fMonth = document.getElementById('filter-month');
+  var fSupplier = document.getElementById('filter-supplier');
+  var fStatus = document.getElementById('filter-status');
+  var fClear = document.getElementById('filter-clear');
+  var desktopTbody = document.querySelector('table tbody');
+  var mobileList = document.querySelector('.sm\\:hidden.space-y-2');
+
+  function applyFilters() {
+    var m = fMonth ? fMonth.value : '';
+    var s = fSupplier ? fSupplier.value : '';
+    var st = fStatus ? fStatus.value : '';
+    var hasFilter = m || s || st;
+    if (fClear) fClear.style.display = hasFilter ? '' : 'none';
+
+    var selectors = [
+      { container: desktopTbody, sel: 'tr[data-date]' },
+      { container: mobileList, sel: '.card[data-date]' }
+    ];
+    selectors.forEach(function(ctx) {
+      if (!ctx.container) return;
+      var items = ctx.container.querySelectorAll(ctx.sel);
+      items.forEach(function(el) {
+        var date = el.getAttribute('data-date') || '';
+        var sup = el.getAttribute('data-supplier') || '';
+        var status = el.getAttribute('data-status') || '';
+        var show = true;
+        if (m && date.substring(0, 7) !== m) show = false;
+        if (s && sup !== s) show = false;
+        if (st && status !== st) show = false;
+        el.style.display = show ? '' : 'none';
+      });
+    });
+  }
+
+  if (fMonth) fMonth.addEventListener('change', applyFilters);
+  if (fSupplier) fSupplier.addEventListener('change', applyFilters);
+  if (fStatus) fStatus.addEventListener('change', applyFilters);
+  if (fClear) fClear.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (fMonth) fMonth.value = '';
+    if (fSupplier) fSupplier.value = '';
+    if (fStatus) fStatus.value = '';
+    applyFilters();
+  });
+
   /* --- Column sorting --- */
   var currentSort = { key: 'date', asc: false }; /* default: date DESC */
   var headers = document.querySelectorAll('.sortable-header');

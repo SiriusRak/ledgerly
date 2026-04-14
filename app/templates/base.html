@@ -6,6 +6,9 @@
   <title>{% block title %}Ledgerly{% endblock %}</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
   <link rel="stylesheet" href="/static/css/dist.css">
+  <script>
+    (function(){var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})();
+  </script>
   <script src="/static/js/htmx.min.js" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -34,6 +37,10 @@
         <a href="/suppliers" class="nav-link {% if active_tab == 'suppliers' %}active{% endif %}">
           {{ icon("users", "w-4 h-4") }} Suppliers
         </a>
+        <button id="theme-toggle" class="nav-link ml-2" type="button" title="Toggle dark mode">
+          <span class="theme-icon-light">{{ icon("moon", "w-4 h-4") }}</span>
+          <span class="theme-icon-dark" style="display:none;">{{ icon("sun", "w-4 h-4") }}</span>
+        </button>
       </div>
     </div>
 
@@ -57,6 +64,12 @@
       {{ icon("users", "w-5 h-5") }}
       <span class="text-[10px] font-medium">Suppliers</span>
     </a>
+    <button id="theme-toggle-mobile" class="flex flex-col items-center gap-0.5 px-3 py-1" style="color: var(--color-nav-text);" type="button">
+      <span class="theme-icon-light">{{ icon("moon", "w-5 h-5") }}</span>
+      <span class="theme-icon-dark" style="display:none;">{{ icon("sun", "w-5 h-5") }}</span>
+      <span class="text-[10px] font-medium theme-icon-light">Dark</span>
+      <span class="text-[10px] font-medium theme-icon-dark" style="display:none;">Light</span>
+    </button>
   </div>
 
   <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8 pb-20 sm:pb-8">
@@ -66,5 +79,25 @@
   <footer class="text-center text-xs py-4" style="color: var(--color-text-muted);">
     Ledgerly -- Invoice processing for accountants
   </footer>
+  <script>
+  (function(){
+    function isDark(){return document.documentElement.classList.contains('dark')}
+    function updateIcons(){
+      document.querySelectorAll('.theme-icon-light').forEach(function(e){e.style.display=isDark()?'none':''});
+      document.querySelectorAll('.theme-icon-dark').forEach(function(e){e.style.display=isDark()?'':'none'});
+    }
+    function toggle(){
+      var d=document.documentElement;
+      if(isDark()){d.classList.remove('dark');localStorage.setItem('theme','light')}
+      else{d.classList.add('dark');localStorage.setItem('theme','dark')}
+      updateIcons();
+    }
+    var b1=document.getElementById('theme-toggle');
+    var b2=document.getElementById('theme-toggle-mobile');
+    if(b1)b1.addEventListener('click',toggle);
+    if(b2)b2.addEventListener('click',toggle);
+    updateIcons();
+  })();
+  </script>
 </body>
 </html>
