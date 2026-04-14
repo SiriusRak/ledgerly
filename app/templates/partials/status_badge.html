@@ -14,7 +14,7 @@
   Recognized
 </span>
 {% endif %}
-{% elif invoice.state == 'review' or (invoice.state == 'processing' and invoice.state_reason) %}
+{% elif invoice.state == 'processing' and invoice.state_reason %}
 <span class="flex items-center gap-1.5 text-xs font-medium text-amber-500">
   {{ icon("alert-triangle", "w-4 h-4") }}
   To review

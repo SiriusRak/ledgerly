@@ -5,11 +5,11 @@
   {% endif %}>
   <div class="flex items-center gap-3 min-w-0">
     {% include "partials/status_badge.html" %}
-    <span class="text-sm text-gray-700 truncate">{{ invoice.filename or 'Unknown file' }}</span>
+    <span class="text-sm text-gray-700 truncate">{{ invoice.pdf_original_name or 'Unknown file' }}</span>
   </div>
   <div class="flex items-center gap-2 text-xs text-gray-400 shrink-0">
-    {% if invoice.supplier_name %}
-    <span class="text-gray-500">{{ invoice.supplier_name }}</span>
+    {% if invoice.supplier_name_raw %}
+    <span class="text-gray-500">{{ invoice.supplier_name_raw }}</span>
     {% endif %}
     {% if invoice.amount_ttc %}
     <span class="font-medium text-gray-600">{{ "%.2f"|format(invoice.amount_ttc) }} EUR</span>

@@ -22,12 +22,15 @@ async def upload_page(request: Request):
     resp = (
         sb.table("invoices")
         .select("*")
-        .order("created_at", desc=True)
+        .order("uploaded_at", desc=True)
         .limit(20)
         .execute()
     )
     invoices = resp.data or []
-    processing_count = sum(1 for i in invoices if i.get("state") in ("pending", "processing"))
+    processing_count = sum(
+        1 for i in invoices
+        if i.get("state") in ("pending",) or (i.get("state") == "processing" and not i.get("state_reason"))
+    )
     return templates.TemplateResponse("upload.html", {
         "request": request,
         "active_tab": "upload",
@@ -58,7 +61,7 @@ async def upload_files(
         # Insert invoice record
         sb.table("invoices").insert({
             "id": invoice_id,
-            "filename": f.filename,
+            "pdf_original_name": f.filename,
             "state": "pending",
         }).execute()
 
@@ -93,13 +96,10 @@ async def invoice_status(request: Request, invoice_id: str):
 @router.get("/batch/status")
 async def batch_status(request: Request):
     sb = get_supabase()
-    resp = (
-        sb.table("invoices")
-        .select("*")
-        .in_("state", ["pending", "processing"])
-        .execute()
-    )
-    processing_count = len(resp.data) if resp.data else 0
+    # Count pending + processing (without state_reason = not yet in review)
+    resp_pending = sb.table("invoices").select("id", count="exact").eq("state", "pending").execute()
+    resp_proc = sb.table("invoices").select("id", count="exact").eq("state", "processing").is_("state_reason", "null").execute()
+    processing_count = (resp_pending.count or 0) + (resp_proc.count or 0)
     return templates.TemplateResponse("partials/batch_banner.html", {
         "request": request,
         "processing_count": processing_count,

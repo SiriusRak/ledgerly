@@ -2,6 +2,7 @@
 
 import json
 import logging
+from datetime import datetime, timezone
 
 from app.db import get_supabase
 from app.pipeline.extractor import extract_text
@@ -35,7 +36,7 @@ def process_invoice(invoice_id: str) -> None:
         # 5. Save raw extraction
         sb.table("invoices").update({
             "raw_extraction": json.dumps(fields),
-            "supplier_name": fields.get("supplier_name"),
+            "supplier_name_raw": fields.get("supplier_name"),
             "siret": fields.get("siret"),
             "invoice_date": fields.get("invoice_date"),
             "invoice_number": fields.get("invoice_number"),
@@ -73,20 +74,29 @@ def process_invoice(invoice_id: str) -> None:
                 fields.get("invoice_date", ""),
                 fields.get("amount_ttc", 0.0),
             )
-            sb.table("invoices").update({
+            update_data = {
                 "state": "done",
                 "classification": "auto",
                 "supplier_id": supplier_id,
-                "storage_path": storage_path,
-            }).eq("id", invoice_id).execute()
+                "pdf_storage_path": storage_path,
+                "processed_at": datetime.now(timezone.utc).isoformat(),
+                "compte": supplier.get("default_compte"),
+                "dossier_client_id": supplier.get("default_dossier_client_id"),
+                "journal": supplier.get("default_journal", "HA"),
+                "libelle": f"{supplier.get('name', '')} - {fields.get('invoice_number', '')}",
+            }
+            # Remove None values to avoid overwriting with null
+            update_data = {k: v for k, v in update_data.items() if v is not None}
+            sb.table("invoices").update(update_data).eq("id", invoice_id).execute()
 
             # Bump supplier memory
             if supplier_id:
                 upsert_and_bump(supplier_id)
 
         elif status == "review":
+            # Keep state='processing' with state_reason set — UI shows "To review"
             sb.table("invoices").update({
-                "state": "review",
+                "state": "processing",
                 "state_reason": reason,
                 "supplier_id": supplier_id,
             }).eq("id", invoice_id).execute()
