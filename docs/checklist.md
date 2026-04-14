@@ -58,13 +58,13 @@
   Acceptance: Page charge, liste tous les suppliers appris avec leurs defaults et compteur d'invoices.
   Verify: Après avoir traité quelques factures, ouvrir /suppliers → confirmer chaque supplier validé apparaît avec `invoices_count` correct et `last_seen` récent.
 
-- [ ] **9. Jobs — scheduler + keepalive + sweeper + weekly recap email**
+- [x] **9. Jobs — scheduler + keepalive + sweeper + weekly recap email**
   Spec ref: `spec.md > Jobs`, `prd.md > Epic 5`
   What to build: `app/jobs/scheduler.py` (`AsyncIOScheduler` init dans `lifespan` FastAPI, shutdown propre). `app/jobs/keepalive.py` (cron every 10min : `httpx.get({PUBLIC_URL}/health)` + `SELECT 1` Supabase). `app/jobs/sweeper.py` (cron every 2min : UPDATE invoices SET state='error', state_reason='Server restart (timeout)' WHERE state IN (processing,pending) AND uploaded_at < now()-5min). `app/jobs/weekly_recap.py` (cron `mon 08:00 Europe/Paris` : stats semaine — count total, auto/manual split, sum TTC, top 3 suppliers, duplicates count, errors count ; skip si 0 invoices ; render template email ; resend.send ; try/except insert into `recap_failures`). Template `email/recap.html` (Lucide SVG inline, no emoji, bouton download xlsx mois courant).
   Acceptance: Au démarrage, logs APScheduler montrent les 3 jobs enregistrés. Keepalive ping visible dans logs toutes les 10min. Trigger manuel du weekly_recap envoie un mail Resend reçu sur `RECAP_EMAIL`.
   Verify: Démarrer l'app, attendre 10min → voir log keepalive ping. Déclencher manuellement `weekly_recap()` via un script ou REPL → vérifier réception du mail dans la boîte `RECAP_EMAIL`, structure correcte (7 sections), pas d'emoji, lien download fonctionnel.
 
-- [ ] **10. Demo assets — seed + 8 PDFs scénarisés + capture script**
+- [x] **10. Demo assets — seed + 8 PDFs scénarisés + capture script**
   Spec ref: `prd.md > Epic 7`, `spec.md > File Structure > scripts/`
   What to build: `scripts/seed_demo.py` (wipe DB + insert 3 clients demo). `demo-pdfs/` avec 8 PDFs : 3× EDF (#1 review new supplier, #2 auto-classified avec badge learning, #3 auto), 2× new suppliers (1 clean, 1 VAT mismatch), 1× duplicate EDF, 1× RIB (non-invoice → error), 1× Orange 4 pages. `demo-pdfs/README.md` documente chaque fichier et son comportement attendu. `scripts/capture_demo_artifacts.py` (Playwright async : wipe+seed, ingère les 8 PDFs via /upload réel, valide les cas en queue, trigger weekly_recap vers demo inbox, screenshots des 3 écrans + email + xlsx → `demo-assets/`).
   Acceptance: Run `python scripts/capture_demo_artifacts.py` → DB propre, 8 PDFs ingérés, screenshots générés dans `demo-assets/`, xlsx final présent, email recap reçu.
