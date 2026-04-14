@@ -11,8 +11,11 @@ from app.db import get_supabase
 logger = logging.getLogger(__name__)
 
 
-async def send_weekly_recap() -> None:
-    """Compute weekly stats and send recap email. Skip if 0 invoices."""
+async def send_weekly_recap() -> dict:
+    """Compute weekly stats and send recap email. Skip if 0 invoices.
+
+    Returns dict with "status" ('sent', 'empty', 'error') and optional "message".
+    """
     sb = get_supabase()
 
     now = datetime.now(timezone.utc)
@@ -30,7 +33,7 @@ async def send_weekly_recap() -> None:
 
     if not invoices:
         logger.info("Weekly recap: 0 invoices this week, skipping send")
-        return
+        return {"status": "empty", "message": "No invoices to recap this week"}
 
     # Stats
     total = len(invoices)
@@ -129,6 +132,7 @@ async def send_weekly_recap() -> None:
             "html": html,
         })
         logger.info("Weekly recap sent to %s", settings.recap_email)
+        return {"status": "sent", "message": f"Recap sent to {settings.recap_email}"}
     except Exception as e:
         logger.error("Weekly recap send failed: %s", e)
         try:
@@ -137,3 +141,4 @@ async def send_weekly_recap() -> None:
             }).execute()
         except Exception:
             pass
+        return {"status": "error", "message": str(e)[:200]}

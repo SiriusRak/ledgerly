@@ -33,8 +33,16 @@
     <a id="btn-csv" href="#" class="btn-secondary text-center text-xs sm:text-sm">
       {{ icon("download", "w-4 h-4") }} CSV
     </a>
+    <button type="button" class="btn-secondary text-center text-xs sm:text-sm inline-flex items-center gap-1"
+            hx-post="/recap/send"
+            hx-target="#recap-container"
+            hx-swap="innerHTML"
+            hx-disabled-elt="this">
+      {{ icon("mail", "w-4 h-4") }} <span>Send recap</span>
+    </button>
   </div>
 </div>
+<div id="recap-container"></div>
 
 {# ── Filter bar ── #}
 <form method="get" action="/history" class="card px-3 py-3 sm:px-4 sm:py-3 mb-4 sm:mb-6">
