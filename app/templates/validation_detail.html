@@ -5,17 +5,17 @@
 
 {# Reason banner #}
 {% set reason = invoice.state_reason|lower if invoice.state_reason else '' %}
-{% if reason == 'duplicate' %}
+{% if 'duplicate' in reason %}
 <div class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2 text-red-700 text-sm font-medium">
-  {{ icon("copy", "w-4 h-4") }} Doublon potentiel detecte
+  {{ icon("copy", "w-4 h-4") }} {{ invoice.state_reason }}
 </div>
-{% elif reason == 'vat_mismatch' %}
+{% elif 'vat' in reason or 'tva' in reason %}
 <div class="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-center gap-2 text-amber-700 text-sm font-medium">
-  {{ icon("alert-triangle", "w-4 h-4") }} Ecart de TVA detecte
+  {{ icon("alert-triangle", "w-4 h-4") }} {{ invoice.state_reason }}
 </div>
-{% elif reason == 'new_supplier' %}
+{% elif 'new supplier' in reason or 'nouveau' in reason %}
 <div class="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-center gap-2 text-blue-700 text-sm font-medium">
-  {{ icon("users", "w-4 h-4") }} Nouveau fournisseur -- a verifier
+  {{ icon("users", "w-4 h-4") }} {{ invoice.state_reason }}
 </div>
 {% elif invoice.state_reason %}
 <div class="mb-4 p-3 rounded-lg bg-gray-50 border border-gray-200 flex items-center gap-2 text-gray-700 text-sm font-medium">

@@ -66,7 +66,8 @@ async def upload_files(
         }).execute()
 
         # Upload to storage inbox
-        put_inbox(invoice_id, pdf_bytes)
+        storage_path = put_inbox(invoice_id, pdf_bytes)
+        sb.table("invoices").update({"pdf_storage_path": storage_path}).eq("id", invoice_id).execute()
 
         # Queue background processing
         background_tasks.add_task(process_invoice, invoice_id)

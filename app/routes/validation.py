@@ -13,15 +13,21 @@ from app.services.storage import move_to_supplier, signed_url
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-# Sort priority for state_reason
-_REASON_ORDER = {"duplicate": 0, "vat_mismatch": 1, "new_supplier": 2}
+def _reason_priority(reason: str) -> int:
+    """Sort priority based on reason content (not exact match)."""
+    r = reason.lower()
+    if "duplicate" in r:
+        return 0
+    if "vat" in r or "tva" in r:
+        return 1
+    if "new supplier" in r or "nouveau" in r:
+        return 2
+    return 99
 
 
 def _sort_key(inv: dict) -> tuple:
-    reason = (inv.get("state_reason") or "").lower()
-    priority = _REASON_ORDER.get(reason, 99)
-    uploaded = inv.get("uploaded_at") or ""
-    return (priority, uploaded)
+    reason = inv.get("state_reason") or ""
+    return (_reason_priority(reason), inv.get("uploaded_at") or "")
 
 
 @router.get("/queue")
@@ -197,9 +203,10 @@ async def new_client_inline(request: Request):
 
 
 @router.post("/clients")
-async def create_client(request: Request, name: str = Form(...)):
+async def create_client(request: Request, name: str = Form(...), code: str = Form("")):
     sb = get_supabase()
-    resp = sb.table("clients").insert({"name": name.strip()}).execute()
+    client_code = code.strip() or name.strip().upper().replace(" ", "_")[:20]
+    resp = sb.table("clients").insert({"name": name.strip(), "code": client_code}).execute()
     client = resp.data[0]
     html = f'<option value="{client["id"]}" selected>{client["name"]}</option>'
     from fastapi.responses import HTMLResponse
