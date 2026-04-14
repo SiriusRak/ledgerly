@@ -20,12 +20,6 @@
         <span class="text-sm font-semibold text-white tracking-tight hidden sm:inline">Ledgerly</span>
       </a>
 
-      {# Mobile hamburger #}
-      <button id="nav-toggle" class="sm:hidden p-1.5 rounded" style="color: var(--color-nav-text);" onclick="document.getElementById('nav-menu').classList.toggle('hidden')">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-
-      {# Desktop nav #}
       <div class="hidden sm:flex items-center gap-1">
         <a href="/upload" class="nav-link {% if active_tab == 'upload' %}active{% endif %}">
           {{ icon("upload", "w-4 h-4") }} Upload
@@ -42,26 +36,29 @@
       </div>
     </div>
 
-    {# Mobile nav dropdown #}
-    <div id="nav-menu" class="hidden sm:hidden border-t" style="border-color: rgba(255,255,255,0.08);">
-      <div class="px-4 py-2 space-y-1">
-        <a href="/upload" class="nav-link w-full {% if active_tab == 'upload' %}active{% endif %}">
-          {{ icon("upload", "w-4 h-4") }} Upload
-        </a>
-        <a href="/queue" class="nav-link w-full {% if active_tab == 'queue' %}active{% endif %}">
-          {{ icon("inbox", "w-4 h-4") }} Queue
-        </a>
-        <a href="/history" class="nav-link w-full {% if active_tab == 'history' %}active{% endif %}">
-          {{ icon("book-open", "w-4 h-4") }} History
-        </a>
-        <a href="/suppliers" class="nav-link w-full {% if active_tab == 'suppliers' %}active{% endif %}">
-          {{ icon("users", "w-4 h-4") }} Suppliers
-        </a>
-      </div>
-    </div>
   </nav>
 
-  <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
+  {# Mobile bottom tab bar #}
+  <div class="sm:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around py-2" style="background: var(--color-nav); border-top: 1px solid rgba(255,255,255,0.08);">
+    <a href="/upload" class="flex flex-col items-center gap-0.5 px-3 py-1 {% if active_tab == 'upload' %}text-white{% else %}{% endif %}" style="{% if active_tab != 'upload' %}color: var(--color-nav-text);{% endif %}">
+      {{ icon("upload", "w-5 h-5") }}
+      <span class="text-[10px] font-medium">Upload</span>
+    </a>
+    <a href="/queue" class="flex flex-col items-center gap-0.5 px-3 py-1 {% if active_tab == 'queue' %}text-white{% else %}{% endif %}" style="{% if active_tab != 'queue' %}color: var(--color-nav-text);{% endif %}">
+      {{ icon("inbox", "w-5 h-5") }}
+      <span class="text-[10px] font-medium">Queue</span>
+    </a>
+    <a href="/history" class="flex flex-col items-center gap-0.5 px-3 py-1 {% if active_tab == 'history' %}text-white{% else %}{% endif %}" style="{% if active_tab != 'history' %}color: var(--color-nav-text);{% endif %}">
+      {{ icon("book-open", "w-5 h-5") }}
+      <span class="text-[10px] font-medium">History</span>
+    </a>
+    <a href="/suppliers" class="flex flex-col items-center gap-0.5 px-3 py-1 {% if active_tab == 'suppliers' %}text-white{% else %}{% endif %}" style="{% if active_tab != 'suppliers' %}color: var(--color-nav-text);{% endif %}">
+      {{ icon("users", "w-5 h-5") }}
+      <span class="text-[10px] font-medium">Suppliers</span>
+    </a>
+  </div>
+
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8 pb-20 sm:pb-8">
     {% block content %}{% endblock %}
   </main>
 
