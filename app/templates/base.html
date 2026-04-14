@@ -14,71 +14,72 @@
 <body class="min-h-screen flex flex-col">
   {% from "macros/icons.html" import icon %}
 
-  {# Dark nav bar #}
+  {# ── Top nav ── #}
   <nav style="background: var(--color-nav);">
-    <div class="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-2.5">
-      <a href="/" class="flex items-center gap-2">
-        <div class="w-7 h-7 rounded flex items-center justify-center" style="background: var(--color-accent);">
+    <div class="max-w-5xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
+      <a href="/" class="flex items-center gap-2.5 group">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105" style="background: var(--color-accent);">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
         </div>
-        <span class="text-sm font-semibold text-white tracking-tight hidden sm:inline">Ledgerly</span>
+        <span class="text-sm font-semibold tracking-tight hidden sm:inline" style="color: var(--color-nav-active);">Ledgerly</span>
       </a>
 
       <div class="hidden sm:flex items-center gap-1">
         <a href="/upload" class="nav-link {% if active_tab == 'upload' %}active{% endif %}">
-          {{ icon("upload", "w-4 h-4") }} Upload
+          {{ icon("upload", "w-3.5 h-3.5") }} Upload
         </a>
         <a href="/queue" class="nav-link {% if active_tab == 'queue' %}active{% endif %}">
-          {{ icon("inbox", "w-4 h-4") }} Queue
+          {{ icon("inbox", "w-3.5 h-3.5") }} Queue
         </a>
         <a href="/history" class="nav-link {% if active_tab == 'history' %}active{% endif %}">
-          {{ icon("book-open", "w-4 h-4") }} History
+          {{ icon("book-open", "w-3.5 h-3.5") }} History
         </a>
         <a href="/suppliers" class="nav-link {% if active_tab == 'suppliers' %}active{% endif %}">
-          {{ icon("users", "w-4 h-4") }} Suppliers
+          {{ icon("users", "w-3.5 h-3.5") }} Suppliers
         </a>
-        <button id="theme-toggle" class="nav-link ml-2" type="button" title="Toggle dark mode">
-          <span class="theme-icon-light">{{ icon("moon", "w-4 h-4") }}</span>
-          <span class="theme-icon-dark" style="display:none;">{{ icon("sun", "w-4 h-4") }}</span>
+
+        <div class="w-px h-4 mx-2" style="background: rgba(255,255,255,0.1);"></div>
+
+        <button id="theme-toggle" class="nav-link" type="button" title="Toggle theme">
+          <span class="theme-icon-light">{{ icon("moon", "w-3.5 h-3.5") }}</span>
+          <span class="theme-icon-dark" style="display:none;">{{ icon("sun", "w-3.5 h-3.5") }}</span>
         </button>
       </div>
     </div>
-
   </nav>
 
-  {# Mobile bottom tab bar #}
-  <div class="sm:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around py-2" style="background: var(--color-nav); border-top: 1px solid rgba(255,255,255,0.08);">
-    <a href="/upload" class="flex flex-col items-center gap-0.5 px-3 py-1 {% if active_tab == 'upload' %}text-white{% else %}{% endif %}" style="{% if active_tab != 'upload' %}color: var(--color-nav-text);{% endif %}">
-      {{ icon("upload", "w-5 h-5") }}
-      <span class="text-[10px] font-medium">Upload</span>
-    </a>
-    <a href="/queue" class="flex flex-col items-center gap-0.5 px-3 py-1 {% if active_tab == 'queue' %}text-white{% else %}{% endif %}" style="{% if active_tab != 'queue' %}color: var(--color-nav-text);{% endif %}">
-      {{ icon("inbox", "w-5 h-5") }}
-      <span class="text-[10px] font-medium">Queue</span>
-    </a>
-    <a href="/history" class="flex flex-col items-center gap-0.5 px-3 py-1 {% if active_tab == 'history' %}text-white{% else %}{% endif %}" style="{% if active_tab != 'history' %}color: var(--color-nav-text);{% endif %}">
-      {{ icon("book-open", "w-5 h-5") }}
-      <span class="text-[10px] font-medium">History</span>
-    </a>
-    <a href="/suppliers" class="flex flex-col items-center gap-0.5 px-3 py-1 {% if active_tab == 'suppliers' %}text-white{% else %}{% endif %}" style="{% if active_tab != 'suppliers' %}color: var(--color-nav-text);{% endif %}">
-      {{ icon("users", "w-5 h-5") }}
-      <span class="text-[10px] font-medium">Suppliers</span>
-    </a>
-    <button id="theme-toggle-mobile" class="flex flex-col items-center gap-0.5 px-3 py-1" style="color: var(--color-nav-text);" type="button">
-      <span class="theme-icon-light">{{ icon("moon", "w-5 h-5") }}</span>
-      <span class="theme-icon-dark" style="display:none;">{{ icon("sun", "w-5 h-5") }}</span>
-      <span class="text-[10px] font-medium theme-icon-light">Dark</span>
-      <span class="text-[10px] font-medium theme-icon-dark" style="display:none;">Light</span>
-    </button>
+  {# ── Mobile bottom tab bar ── #}
+  <div class="sm:hidden fixed bottom-0 left-0 right-0 z-50" style="background: var(--color-nav); border-top: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(12px);">
+    <div class="flex items-center justify-around py-1.5 px-1">
+      {% set tabs = [
+        ('upload', 'upload', 'Upload'),
+        ('queue', 'inbox', 'Queue'),
+        ('history', 'book-open', 'History'),
+        ('suppliers', 'users', 'Suppliers')
+      ] %}
+      {% for href, ico, label in tabs %}
+      <a href="/{{ href }}" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all {% if active_tab == href %}text-white{% endif %}" style="{% if active_tab != href %}color: var(--color-nav-text);{% endif %}{% if active_tab == href %}background: rgba(255,255,255,0.08);{% endif %}">
+        {{ icon(ico, "w-5 h-5") }}
+        <span class="text-[10px] font-medium">{{ label }}</span>
+      </a>
+      {% endfor %}
+      <button id="theme-toggle-mobile" class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg" style="color: var(--color-nav-text);" type="button">
+        <span class="theme-icon-light">{{ icon("moon", "w-5 h-5") }}</span>
+        <span class="theme-icon-dark" style="display:none;">{{ icon("sun", "w-5 h-5") }}</span>
+        <span class="text-[10px] font-medium theme-icon-light">Dark</span>
+        <span class="text-[10px] font-medium theme-icon-dark" style="display:none;">Light</span>
+      </button>
+    </div>
   </div>
 
-  <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8 pb-20 sm:pb-8">
+  <main class="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-10 pb-24 sm:pb-10">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="text-center text-xs py-4" style="color: var(--color-text-muted);">
+  <footer class="text-center text-[11px] py-5 mono" style="color: var(--color-text-muted);">
     Ledgerly -- Invoice processing for accountants
   </footer>
+
   <script>
   (function(){
     function isDark(){return document.documentElement.classList.contains('dark')}

@@ -4,22 +4,21 @@
      hx-get="/batch/status" hx-trigger="every 3s" hx-swap="outerHTML"
      {% endif %}>
   {% if processing_count > 0 %}
-  <div class="mt-4 flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded" style="background: var(--color-accent-light); color: var(--color-accent);">
+  <div class="mt-5 flex items-center gap-2.5 text-sm font-medium px-4 py-3 rounded-lg" style="background: var(--color-accent-light); color: var(--color-accent);">
     {{ icon("loader", "w-4 h-4 animate-spin") }}
     <span>{{ processing_count }} invoice{{ "s" if processing_count > 1 else "" }} processing...</span>
   </div>
   {% elif was_processing %}
-  {# Batch just finished — show toast OOB #}
   <div id="toast" hx-swap-oob="true"
-       class="fixed bottom-6 right-6 card shadow-lg px-4 py-3 flex items-center gap-3 text-sm max-w-md animate-fade-in-up" style="z-index: 50;">
-    <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" class="icon-success">
+       class="fixed bottom-6 right-6 card px-4 py-3 flex items-center gap-3 text-sm max-w-md animate-fade-in-up z-50" style="box-shadow: var(--shadow-elevated);">
+    <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 icon-success">
       {{ icon("check-circle", "w-4 h-4 text-current") }}
     </div>
     <div>
-      <p class="font-medium" style="color: var(--color-text-primary);">Batch complete</p>
+      <p class="font-medium">Batch complete</p>
       <p class="text-xs mt-0.5" style="color: var(--color-text-muted);">All invoices processed</p>
     </div>
-    <button onclick="this.parentElement.remove()" class="ml-auto" style="color: var(--color-text-muted);">
+    <button onclick="this.parentElement.remove()" class="ml-auto transition-opacity hover:opacity-70" style="color: var(--color-text-muted);">
       {{ icon("x-circle", "w-4 h-4") }}
     </button>
   </div>

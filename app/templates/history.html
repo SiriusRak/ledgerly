@@ -3,16 +3,18 @@
 {% block content %}
 {% from "macros/icons.html" import icon %}
 
-<div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
+{# ── Header ── #}
+<div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
   <div>
-    <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Invoice history</h1>
-    <p class="text-xs sm:text-sm mt-1" style="color: var(--color-text-secondary);">
-      {{ invoices | length }} invoice{{ 's' if invoices | length != 1 else '' }}
+    <h1 class="text-2xl sm:text-3xl">Invoice history</h1>
+    <p class="text-sm mt-1.5 mono" style="color: var(--color-text-muted);">
+      {{ invoices | length }} record{{ 's' if invoices | length != 1 else '' }}
     </p>
   </div>
 
-  <div class="grid grid-cols-2 sm:flex sm:items-center gap-2">
-    <select id="month-select" class="input-field text-xs sm:text-sm col-span-1">
+  {# Export controls #}
+  <div class="flex flex-wrap items-center gap-2">
+    <select id="month-select" class="input-field text-xs w-auto" style="min-width: 110px;">
       {% if months %}
         {% for m in months %}
         <option value="{{ m }}">{{ m }}</option>
@@ -21,68 +23,68 @@
         <option value="">No data</option>
       {% endif %}
     </select>
-    <select id="client-select" class="input-field text-xs sm:text-sm col-span-1">
+    <select id="client-select" class="input-field text-xs w-auto" style="min-width: 120px;">
       <option value="">All clients</option>
       {% for c in clients %}
       <option value="{{ c.id }}">{{ c.name }}</option>
       {% endfor %}
     </select>
-    <a id="btn-xlsx" href="#" class="btn-primary text-center text-xs sm:text-sm">
-      {{ icon("download", "w-4 h-4") }} .xlsx
+    <a id="btn-xlsx" href="#" class="btn-primary text-xs py-1.5">
+      {{ icon("download", "w-3.5 h-3.5") }} .xlsx
     </a>
-    <a id="btn-csv" href="#" class="btn-secondary text-center text-xs sm:text-sm">
-      {{ icon("download", "w-4 h-4") }} CSV
+    <a id="btn-csv" href="#" class="btn-secondary text-xs py-1.5">
+      {{ icon("download", "w-3.5 h-3.5") }} CSV
     </a>
-    <button type="button" class="btn-secondary text-center text-xs sm:text-sm inline-flex items-center gap-1"
+    <button type="button" class="btn-secondary text-xs py-1.5"
             hx-post="/recap/send"
             hx-target="#recap-container"
             hx-swap="innerHTML"
             hx-disabled-elt="this">
-      {{ icon("mail", "w-4 h-4") }} <span>Send recap</span>
+      {{ icon("mail", "w-3.5 h-3.5") }} Recap
     </button>
   </div>
 </div>
 <div id="recap-container"></div>
 
-{# ── Filter bar (client-side, instant) ── #}
-<div class="card px-3 py-3 sm:px-4 sm:py-3 mb-4 sm:mb-6">
-  <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-    <select id="filter-month" class="input-field text-xs sm:text-sm">
-      <option value="">All months</option>
-      {% for m in all_months %}
-      <option value="{{ m }}">{{ m }}</option>
-      {% endfor %}
-    </select>
+{# ── Filters (client-side, instant) ── #}
+<div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-5 sm:mb-6">
+  <select id="filter-month" class="input-field text-xs w-auto sm:w-32">
+    <option value="">All months</option>
+    {% for m in all_months %}
+    <option value="{{ m }}">{{ m }}</option>
+    {% endfor %}
+  </select>
 
-    <select id="filter-supplier" class="input-field text-xs sm:text-sm">
-      <option value="">All suppliers</option>
-      {% for s in all_suppliers %}
-      <option value="{{ s.name|lower }}">{{ s.name }}</option>
-      {% endfor %}
-    </select>
+  <select id="filter-supplier" class="input-field text-xs w-auto sm:w-40">
+    <option value="">All suppliers</option>
+    {% for s in all_suppliers %}
+    <option value="{{ s.name|lower }}">{{ s.name }}</option>
+    {% endfor %}
+  </select>
 
-    <select id="filter-status" class="input-field text-xs sm:text-sm">
-      <option value="">All status</option>
-      <option value="auto">Auto</option>
-      <option value="manual">Manual</option>
-    </select>
+  <select id="filter-status" class="input-field text-xs w-auto sm:w-28">
+    <option value="">All status</option>
+    <option value="auto">Auto</option>
+    <option value="manual">Manual</option>
+  </select>
 
-    <a href="#" id="filter-clear" class="text-xs underline whitespace-nowrap" style="color: var(--color-accent); display:none;">{{ icon("x-circle", "w-3.5 h-3.5 inline") }} Clear</a>
-  </div>
+  <a href="#" id="filter-clear" class="text-xs font-medium whitespace-nowrap transition-colors" style="color: var(--color-accent); display:none;">
+    {{ icon("x-circle", "w-3 h-3 inline") }} Clear
+  </a>
 </div>
 
 {% if invoices %}
-{# Mobile: card list. Desktop: table #}
-<div class="hidden sm:block card overflow-x-auto">
-  <table class="min-w-full text-sm whitespace-nowrap">
+{# ── Desktop table ── #}
+<div class="hidden sm:block card overflow-hidden">
+  <table class="w-full text-sm">
     <thead>
       <tr style="background: var(--color-surface-sunken); border-bottom: 1px solid var(--color-border);">
-        <th class="table-header px-4 py-3 text-left sortable-header" data-sort="date" style="cursor:pointer;user-select:none;">Date <span class="sort-arrow"></span></th>
-        <th class="table-header px-4 py-3 text-left sortable-header" data-sort="supplier" style="cursor:pointer;user-select:none;">Supplier <span class="sort-arrow"></span></th>
-        <th class="table-header px-4 py-3 text-right sortable-header" data-sort="amount" style="cursor:pointer;user-select:none;">Amount TTC <span class="sort-arrow"></span></th>
-        <th class="table-header px-4 py-3 text-left sortable-header" data-sort="compte" style="cursor:pointer;user-select:none;">Compte <span class="sort-arrow"></span></th>
+        <th class="table-header px-4 py-3 text-left sortable-header" data-sort="date">Date <span class="sort-arrow"></span></th>
+        <th class="table-header px-4 py-3 text-left sortable-header" data-sort="supplier">Supplier <span class="sort-arrow"></span></th>
+        <th class="table-header px-4 py-3 text-right sortable-header" data-sort="amount">Amount TTC <span class="sort-arrow"></span></th>
+        <th class="table-header px-4 py-3 text-left sortable-header" data-sort="compte">Compte <span class="sort-arrow"></span></th>
         <th class="table-header px-4 py-3 text-left">Dossier</th>
-        <th class="table-header px-4 py-3 text-left sortable-header" data-sort="status" style="cursor:pointer;user-select:none;">Status <span class="sort-arrow"></span></th>
+        <th class="table-header px-4 py-3 text-left sortable-header" data-sort="status">Status <span class="sort-arrow"></span></th>
         <th class="table-header px-4 py-3 text-center">PDF</th>
       </tr>
     </thead>
@@ -90,30 +92,35 @@
       {% for inv in invoices %}
       {% set sup = inv.suppliers if inv.suppliers is mapping else {} %}
       {% set cli = inv.clients if inv.clients is mapping else {} %}
-      <tr style="border-bottom: 1px solid var(--color-border);" class="row-hover transition-colors" data-date="{{ inv.invoice_date or '' }}" data-supplier="{{ (sup.name or inv.supplier_name_raw or '')|lower }}" data-amount="{{ inv.amount_ttc if inv.amount_ttc is not none else 0 }}" data-compte="{{ (inv.compte or '')|lower }}" data-status="{{ inv.classification or '' }}">
-        <td class="px-4 py-2.5 whitespace-nowrap mono text-xs">
+      <tr class="row-hover" style="border-bottom: 1px solid var(--color-border);"
+          data-date="{{ inv.invoice_date or '' }}"
+          data-supplier="{{ (sup.name or inv.supplier_name_raw or '')|lower }}"
+          data-amount="{{ inv.amount_ttc if inv.amount_ttc is not none else 0 }}"
+          data-compte="{{ (inv.compte or '')|lower }}"
+          data-status="{{ inv.classification or '' }}">
+        <td class="px-4 py-3 whitespace-nowrap mono text-xs">
           {% if inv.invoice_date %}{{ inv.invoice_date[8:10] }}/{{ inv.invoice_date[5:7] }}/{{ inv.invoice_date[0:4] }}{% endif %}
         </td>
-        <td class="px-4 py-2.5">
+        <td class="px-4 py-3">
           {% if sup.id %}
           <a href="/history?supplier_id={{ sup.id }}" class="font-medium hover:underline" style="color: var(--color-accent);">{{ sup.name or inv.supplier_name_raw or '-' }}</a>
           {% else %}{{ inv.supplier_name_raw or '-' }}{% endif %}
         </td>
-        <td class="px-4 py-2.5 text-right mono whitespace-nowrap font-medium">
+        <td class="px-4 py-3 text-right mono whitespace-nowrap font-semibold">
           {% if inv.amount_ttc is not none %}{{ "%.2f"|format(inv.amount_ttc)|replace(".", ",") }}{% endif %}
         </td>
-        <td class="px-4 py-2.5 mono text-xs">{{ inv.compte or '-' }}</td>
-        <td class="px-4 py-2.5 text-xs">{{ cli.code or '-' }}</td>
-        <td class="px-4 py-2.5">
+        <td class="px-4 py-3 mono text-xs">{{ inv.compte or '-' }}</td>
+        <td class="px-4 py-3 text-xs" style="color: var(--color-text-secondary);">{{ cli.code or '-' }}</td>
+        <td class="px-4 py-3">
           {% if inv.classification == 'auto' %}
             <span class="badge badge-success">{{ icon("check-circle", "w-3 h-3") }} Auto</span>
           {% else %}
             <span class="badge badge-blue">Manual</span>
           {% endif %}
         </td>
-        <td class="px-4 py-2.5 text-center">
+        <td class="px-4 py-3 text-center">
           {% if inv.pdf_storage_path %}
-          <a href="/history/pdf-url?path={{ inv.pdf_storage_path | urlencode }}" target="_blank" rel="noopener" style="color: var(--color-accent);" class="hover:opacity-70">{{ icon("book-open", "w-4 h-4 inline") }}</a>
+          <a href="/history/pdf-url?path={{ inv.pdf_storage_path | urlencode }}" target="_blank" rel="noopener" class="inline-block transition-transform hover:scale-110" style="color: var(--color-accent);">{{ icon("book-open", "w-4 h-4") }}</a>
           {% else %}<span style="color: var(--color-text-muted);">--</span>{% endif %}
         </td>
       </tr>
@@ -122,21 +129,26 @@
   </table>
 </div>
 
-{# Mobile card list #}
+{# ── Mobile cards ── #}
 <div class="sm:hidden space-y-2">
   {% for inv in invoices %}
   {% set sup = inv.suppliers if inv.suppliers is mapping else {} %}
   {% set cli = inv.clients if inv.clients is mapping else {} %}
-  <div class="card px-3 py-3" data-date="{{ inv.invoice_date or '' }}" data-supplier="{{ (sup.name or inv.supplier_name_raw or '')|lower }}" data-amount="{{ inv.amount_ttc if inv.amount_ttc is not none else 0 }}" data-compte="{{ (inv.compte or '')|lower }}" data-status="{{ inv.classification or '' }}">
-    <div class="flex items-start justify-between gap-2 mb-1.5">
+  <div class="card px-4 py-3"
+       data-date="{{ inv.invoice_date or '' }}"
+       data-supplier="{{ (sup.name or inv.supplier_name_raw or '')|lower }}"
+       data-amount="{{ inv.amount_ttc if inv.amount_ttc is not none else 0 }}"
+       data-compte="{{ (inv.compte or '')|lower }}"
+       data-status="{{ inv.classification or '' }}">
+    <div class="flex items-start justify-between gap-3 mb-2">
       <div class="min-w-0">
         {% if sup.id %}
         <a href="/history?supplier_id={{ sup.id }}" class="font-medium text-sm truncate block" style="color: var(--color-accent);">{{ sup.name or inv.supplier_name_raw or '-' }}</a>
         {% else %}
-        <span class="font-medium text-sm truncate block" style="color: var(--color-text-primary);">{{ inv.supplier_name_raw or '-' }}</span>
+        <span class="font-medium text-sm truncate block">{{ inv.supplier_name_raw or '-' }}</span>
         {% endif %}
       </div>
-      <span class="mono text-sm font-semibold shrink-0" style="color: var(--color-text-primary);">
+      <span class="mono text-sm font-semibold shrink-0">
         {% if inv.amount_ttc is not none %}{{ "%.2f"|format(inv.amount_ttc)|replace(".", ",") }}{% endif %}
       </span>
     </div>
@@ -146,9 +158,9 @@
       {% endif %}
       <span class="mono">{{ inv.compte or '-' }}</span>
       {% if inv.classification == 'auto' %}
-        <span class="badge badge-success">Auto</span>
+        <span class="badge badge-success text-[10px]">Auto</span>
       {% else %}
-        <span class="badge badge-blue">Manual</span>
+        <span class="badge badge-blue text-[10px]">Manual</span>
       {% endif %}
       {% if inv.pdf_storage_path %}
       <a href="/history/pdf-url?path={{ inv.pdf_storage_path | urlencode }}" target="_blank" rel="noopener" style="color: var(--color-accent);" class="ml-auto">{{ icon("book-open", "w-3.5 h-3.5") }}</a>
@@ -158,19 +170,17 @@
   {% endfor %}
 </div>
 {% else %}
-<div class="text-center py-12 sm:py-20">
-  <p class="text-base sm:text-lg font-medium" style="color: var(--color-text-secondary);">No validated invoices yet</p>
+<div class="text-center py-16 sm:py-24">
+  <div class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-5" style="background: var(--color-surface-sunken);">
+    {{ icon("book-open", "w-7 h-7") }}
+  </div>
+  <p class="text-lg serif" style="color: var(--color-text-secondary);">No validated invoices yet</p>
 </div>
 {% endif %}
 
-<style>
-.sortable-header:hover { opacity: 0.7; }
-.sort-arrow { font-size: 0.65rem; margin-left: 2px; vertical-align: middle; }
-</style>
-
 <script>
 (function () {
-  /* --- Client-side filtering --- */
+  /* ── Client-side filtering ── */
   var fMonth = document.getElementById('filter-month');
   var fSupplier = document.getElementById('filter-supplier');
   var fStatus = document.getElementById('filter-status');
@@ -182,42 +192,29 @@
     var m = fMonth ? fMonth.value : '';
     var s = fSupplier ? fSupplier.value : '';
     var st = fStatus ? fStatus.value : '';
-    var hasFilter = m || s || st;
-    if (fClear) fClear.style.display = hasFilter ? '' : 'none';
+    if (fClear) fClear.style.display = (m || s || st) ? '' : 'none';
 
-    var selectors = [
-      { container: desktopTbody, sel: 'tr[data-date]' },
-      { container: mobileList, sel: '.card[data-date]' }
-    ];
-    selectors.forEach(function(ctx) {
-      if (!ctx.container) return;
-      var items = ctx.container.querySelectorAll(ctx.sel);
-      items.forEach(function(el) {
-        var date = el.getAttribute('data-date') || '';
-        var sup = el.getAttribute('data-supplier') || '';
-        var status = el.getAttribute('data-status') || '';
+    [{ c: desktopTbody, s: 'tr[data-date]' }, { c: mobileList, s: '.card[data-date]' }].forEach(function(ctx) {
+      if (!ctx.c) return;
+      ctx.c.querySelectorAll(ctx.s).forEach(function(el) {
         var show = true;
-        if (m && date.substring(0, 7) !== m) show = false;
-        if (s && sup !== s) show = false;
-        if (st && status !== st) show = false;
+        if (m && (el.getAttribute('data-date') || '').substring(0, 7) !== m) show = false;
+        if (s && el.getAttribute('data-supplier') !== s) show = false;
+        if (st && el.getAttribute('data-status') !== st) show = false;
         el.style.display = show ? '' : 'none';
       });
     });
   }
 
-  if (fMonth) fMonth.addEventListener('change', applyFilters);
-  if (fSupplier) fSupplier.addEventListener('change', applyFilters);
-  if (fStatus) fStatus.addEventListener('change', applyFilters);
+  [fMonth, fSupplier, fStatus].forEach(function(el) { if (el) el.addEventListener('change', applyFilters); });
   if (fClear) fClear.addEventListener('click', function(e) {
     e.preventDefault();
-    if (fMonth) fMonth.value = '';
-    if (fSupplier) fSupplier.value = '';
-    if (fStatus) fStatus.value = '';
+    [fMonth, fSupplier, fStatus].forEach(function(el) { if (el) el.value = ''; });
     applyFilters();
   });
 
-  /* --- Column sorting --- */
-  var currentSort = { key: 'date', asc: false }; /* default: date DESC */
+  /* ── Column sorting ── */
+  var currentSort = { key: 'date', asc: false };
   var headers = document.querySelectorAll('.sortable-header');
   var tbody = document.querySelector('table tbody');
   var mobileContainer = document.querySelector('.sm\\:hidden.space-y-2');
@@ -225,67 +222,51 @@
   function compare(a, b, key, asc) {
     var va = a.getAttribute('data-' + key) || '';
     var vb = b.getAttribute('data-' + key) || '';
-    if (key === 'amount') {
-      va = parseFloat(va) || 0;
-      vb = parseFloat(vb) || 0;
-    }
-    var result = va < vb ? -1 : va > vb ? 1 : 0;
-    return asc ? result : -result;
+    if (key === 'amount') { va = parseFloat(va) || 0; vb = parseFloat(vb) || 0; }
+    var r = va < vb ? -1 : va > vb ? 1 : 0;
+    return asc ? r : -r;
   }
 
-  function sortElements(container, selector, key, asc) {
+  function sortEls(container, sel, key, asc) {
     if (!container) return;
-    var items = Array.prototype.slice.call(container.querySelectorAll(selector));
-    items.sort(function (a, b) { return compare(a, b, key, asc); });
-    items.forEach(function (el) { container.appendChild(el); });
+    var items = [].slice.call(container.querySelectorAll(sel));
+    items.sort(function(a, b) { return compare(a, b, key, asc); });
+    items.forEach(function(el) { container.appendChild(el); });
   }
 
   function updateArrows() {
-    headers.forEach(function (th) {
+    headers.forEach(function(th) {
       var arrow = th.querySelector('.sort-arrow');
-      if (th.getAttribute('data-sort') === currentSort.key) {
-        arrow.textContent = currentSort.asc ? '\u25B2' : '\u25BC';
-      } else {
-        arrow.textContent = '';
-      }
+      arrow.textContent = th.getAttribute('data-sort') === currentSort.key ? (currentSort.asc ? '\u25B2' : '\u25BC') : '';
     });
   }
 
-  function doSort(key) {
-    if (currentSort.key === key) {
-      currentSort.asc = !currentSort.asc;
-    } else {
-      currentSort.key = key;
-      currentSort.asc = true;
-    }
-    sortElements(tbody, 'tr', key, currentSort.asc);
-    sortElements(mobileContainer, '.card', key, currentSort.asc);
-    updateArrows();
-  }
-
-  headers.forEach(function (th) {
-    th.addEventListener('click', function () {
-      doSort(th.getAttribute('data-sort'));
+  headers.forEach(function(th) {
+    th.addEventListener('click', function() {
+      var key = th.getAttribute('data-sort');
+      if (currentSort.key === key) currentSort.asc = !currentSort.asc;
+      else { currentSort.key = key; currentSort.asc = true; }
+      sortEls(tbody, 'tr', key, currentSort.asc);
+      sortEls(mobileContainer, '.card', key, currentSort.asc);
+      updateArrows();
     });
   });
+  updateArrows();
 
-  updateArrows(); /* show initial arrow on Date */
-
-  /* --- Export links --- */
+  /* ── Export links ── */
   var monthSel = document.getElementById('month-select');
   var clientSel = document.getElementById('client-select');
   var btnXlsx = document.getElementById('btn-xlsx');
   var btnCsv = document.getElementById('btn-csv');
-  function update() {
-    var m = monthSel.value;
-    var c = clientSel.value;
+  function updateExport() {
+    var m = monthSel.value, c = clientSel.value;
     var qs = c ? '?dossier_client_id=' + c : '';
     btnXlsx.href = m ? '/history/export/factures_' + m + '.xlsx' + qs : '#';
     btnCsv.href = m ? '/history/export/enriched_' + m + '.csv' + qs : '#';
   }
-  monthSel.addEventListener('change', update);
-  clientSel.addEventListener('change', update);
-  update();
+  monthSel.addEventListener('change', updateExport);
+  clientSel.addEventListener('change', updateExport);
+  updateExport();
 })();
 </script>
 {% endblock %}

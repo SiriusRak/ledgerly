@@ -5,7 +5,7 @@
   Extracting...
 </span>
 {% elif invoice.state == 'done' and invoice.classification == 'auto' %}
-<span class="badge" class="badge-success">
+<span class="badge badge-success">
   {{ icon("check-circle", "w-3.5 h-3.5") }}
   Auto-classified
 </span>
@@ -36,7 +36,7 @@
   Retry
 </button>
 {% elif invoice.state == 'done' %}
-<span class="badge" class="badge-success">
+<span class="badge badge-success">
   {{ icon("check-circle", "w-3.5 h-3.5") }}
   Done
 </span>
