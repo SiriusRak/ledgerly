@@ -20,6 +20,5 @@ async def suppliers_page(request: Request):
     )
     suppliers = resp.data or []
     return templates.TemplateResponse(
-        "suppliers.html",
-        {"request": request, "active_tab": "suppliers", "suppliers": suppliers},
+        name="suppliers.html", request=request, context={"active_tab": "suppliers", "suppliers": suppliers},
     )

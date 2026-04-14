@@ -31,8 +31,7 @@ async def upload_page(request: Request):
         1 for i in invoices
         if i.get("state") in ("pending",) or (i.get("state") == "processing" and not i.get("state_reason"))
     )
-    return templates.TemplateResponse("upload.html", {
-        "request": request,
+    return templates.TemplateResponse(name="upload.html", request=request, context={
         "active_tab": "upload",
         "invoices": invoices,
         "processing_count": processing_count,
@@ -76,8 +75,7 @@ async def upload_files(
         row = sb.table("invoices").select("*").eq("id", invoice_id).single().execute()
         created_invoices.append(row.data)
 
-    return templates.TemplateResponse("partials/batch_rows.html", {
-        "request": request,
+    return templates.TemplateResponse(name="partials/batch_rows.html", request=request, context={
         "invoices": created_invoices,
     })
 
@@ -88,8 +86,7 @@ async def invoice_status(request: Request, invoice_id: str):
     resp = sb.table("invoices").select("*").eq("id", invoice_id).single().execute()
     if not resp.data:
         raise HTTPException(status_code=404, detail="Invoice not found")
-    return templates.TemplateResponse("partials/batch_row.html", {
-        "request": request,
+    return templates.TemplateResponse(name="partials/batch_row.html", request=request, context={
         "invoice": resp.data,
     })
 
@@ -101,8 +98,7 @@ async def batch_status(request: Request):
     resp_pending = sb.table("invoices").select("id", count="exact").eq("state", "pending").execute()
     resp_proc = sb.table("invoices").select("id", count="exact").eq("state", "processing").is_("state_reason", "null").execute()
     processing_count = (resp_pending.count or 0) + (resp_proc.count or 0)
-    return templates.TemplateResponse("partials/batch_banner.html", {
-        "request": request,
+    return templates.TemplateResponse(name="partials/batch_banner.html", request=request, context={
         "processing_count": processing_count,
     })
 
@@ -128,7 +124,6 @@ async def retry_invoice(
 
     # Return updated row
     row = sb.table("invoices").select("*").eq("id", invoice_id).single().execute()
-    return templates.TemplateResponse("partials/batch_row.html", {
-        "request": request,
+    return templates.TemplateResponse(name="partials/batch_row.html", request=request, context={
         "invoice": row.data,
     })

@@ -42,8 +42,7 @@ async def queue_list(request: Request):
     )
     invoices = sorted(resp.data or [], key=_sort_key)
     return templates.TemplateResponse(
-        "queue.html",
-        {"request": request, "active_tab": "queue", "invoices": invoices},
+        name="queue.html", request=request, context={"active_tab": "queue", "invoices": invoices},
     )
 
 
@@ -98,9 +97,7 @@ async def queue_detail(request: Request, invoice_id: str):
     next_id = queue_items[0]["id"] if queue_items else None
 
     return templates.TemplateResponse(
-        "validation_detail.html",
-        {
-            "request": request,
+        name="validation_detail.html", request=request, context={
             "active_tab": "queue",
             "invoice": invoice,
             "supplier": supplier,
@@ -198,7 +195,7 @@ async def validate_invoice(
 @router.get("/clients/new-inline")
 async def new_client_inline(request: Request):
     return templates.TemplateResponse(
-        "partials/new_client_inline.html", {"request": request}
+        name="partials/new_client_inline.html", request=request, context={},
     )
 
 

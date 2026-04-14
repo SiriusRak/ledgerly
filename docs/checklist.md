@@ -70,7 +70,7 @@
   Acceptance: Run `python scripts/capture_demo_artifacts.py` → DB propre, 8 PDFs ingérés, screenshots générés dans `demo-assets/`, xlsx final présent, email recap reçu.
   Verify: Inspecter `demo-assets/` : 4+ screenshots (Upload avec batch, Queue, History avec download, Suppliers), `factures_2026-04.xlsx` ouvrable, preuve visuelle du "wow moment" EDF#1→#2 (badge Recognized 2nd time visible sur screenshot).
 
-- [ ] **11. Deploy Render + env vars + smoke test URL publique**
+- [x] **11. Deploy Render + env vars + smoke test URL publique**
   Spec ref: `spec.md > Runtime & Deployment`
   What to build: Créer le service Render web depuis le repo GitHub. Configurer tous les env vars (`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `RESEND_API_KEY`, `RECAP_EMAIL`, `PUBLIC_URL`=URL Render). Dockerfile 2-stage (node build css → python:3.12-slim runtime). Vérifier que `render.yaml` match. Déclencher un deploy. Attendre build green.
   Acceptance: URL publique Render répond, `/health` retourne 200, upload d'une facture fonctionne end-to-end sur l'instance déployée.

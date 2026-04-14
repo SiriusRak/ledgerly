@@ -49,9 +49,7 @@ async def history_page(
             filter_supplier_name = sup.get("name")
 
     return templates.TemplateResponse(
-        "history.html",
-        {
-            "request": request,
+        name="history.html", request=request, context={
             "active_tab": "history",
             "invoices": invoices,
             "months": months,
