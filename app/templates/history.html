@@ -108,7 +108,7 @@
         <td class="px-4 py-2.5 text-xs">{{ cli.code or '-' }}</td>
         <td class="px-4 py-2.5">
           {% if inv.classification == 'auto' %}
-            <span class="badge" class="badge-success">{{ icon("check-circle", "w-3 h-3") }} Auto</span>
+            <span class="badge badge-success">{{ icon("check-circle", "w-3 h-3") }} Auto</span>
           {% else %}
             <span class="badge badge-blue">Manual</span>
           {% endif %}
@@ -148,7 +148,7 @@
       {% endif %}
       <span class="mono">{{ inv.compte or '-' }}</span>
       {% if inv.classification == 'auto' %}
-        <span class="badge" class="badge-success">Auto</span>
+        <span class="badge badge-success">Auto</span>
       {% else %}
         <span class="badge badge-blue">Manual</span>
       {% endif %}

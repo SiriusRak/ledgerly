@@ -81,3 +81,29 @@
   What to build: S'assurer que le repo GitHub est public et à jour (push final). Enregistrer une démo vidéo ≤2 min (drop EDF#1 → validation 1 clic → drop EDF#2 → auto-classified + badge → download xlsx → ouvrir xlsx → recap email), upload YouTube unlisted. Remplir le formulaire Devpost : Title "Ledgerly", Tagline, sections Inspiration/What it does/How we built it/Challenges/Accomplishments/What we learned/What's next (reprendre draft PRD), built-with tags (fastapi/htmx/tailwind/supabase/groq/gemini/python/render/resend), uploader screenshots de `demo-assets/`, attacher xlsx final en asset, lien repo GitHub, lien live Render, lien vidéo YouTube.
   Acceptance: Submission Devpost visible avec badge "Submitted", tous les champs requis remplis, liens (repo/live/video) fonctionnels, screenshots nets.
   Verify: Ouvrir la page submission Devpost, lire la description comme un juge qui ne connaît pas le projet → la valeur (bookkeeper's inbox on autopilot + wow moment learning) doit être évidente en 30 secondes. Cliquer chaque lien → tout fonctionne.
+
+## Iteration 2
+
+- [x] **13. History filters (month + supplier + status)**
+  Spec ref: New — not in original spec
+  What to build: Add month, supplier, and classification (auto/manual/all) filter selectors to `/history`. Backend: extend the GET /history query to accept `month` and `classification` query params in addition to existing `supplier_id`. Frontend: add the selectors (mobile: stacked, desktop: inline row), wire them to reload the page with query params. Keep the existing supplier click-filter working.
+  Acceptance: Selecting a month shows only invoices from that month. Selecting a supplier filters to that supplier. Selecting "Auto" or "Manual" filters by classification. Filters combine (month + supplier + status). Clear button resets all.
+  Verify: With several validated invoices across months, filter by month → list shrinks. Filter by auto → only auto-classified shown. Combine filters → intersection works.
+
+- [x] **14. Sortable History columns (client-side)**
+  Spec ref: New — not in original spec
+  What to build: Add click-to-sort on table headers (Date, Supplier, Amount TTC, Compte, Status) in the desktop History table. Pure JS — toggle ASC/DESC on click, show a small arrow indicator on the active sort column. Default: Date DESC (current). No backend changes. Mobile card list uses the same sort via JS.
+  Acceptance: Click "Amount TTC" header → rows reorder by amount. Click again → reverse. Arrow indicator shows sort direction. Works on all sortable columns.
+  Verify: Click each sortable header, confirm order changes and arrow updates.
+
+- [x] **15. Dark mode (system preference)**
+  Spec ref: New — not in original spec
+  What to build: Add a `@media (prefers-color-scheme: dark)` block in `input.css` that overrides CSS variables (--color-surface, --color-surface-raised, --color-border, --color-text-primary, etc.) with dark values. Nav already dark, so mainly body/cards/tables/inputs need dark treatment. Ensure all templates use CSS vars (not hardcoded colors) — fix any that don't. Badge colors need dark variants. Rebuild Tailwind.
+  Acceptance: With system dark mode ON, the entire app renders in dark theme. All text readable, no white flashes, badges and status colors still distinguishable. Cards have dark backgrounds with subtle borders.
+  Verify: Toggle system dark mode in OS settings → app switches instantly. Check all 5 pages + validation detail. No hardcoded white backgrounds visible.
+
+- [x] **16. Send recap now button**
+  Spec ref: New — not in original spec
+  What to build: `POST /recap/send` route that calls `send_weekly_recap()` synchronously and returns a result. Add a button in the History page export controls area: "Send recap" with a mail icon. On click, POST via HTMX, show success/error toast. Protect against double-click (disable button during send).
+  Acceptance: Click "Send recap" → email arrives at RECAP_EMAIL within 30s with current week stats. Button shows loading state during send. If no invoices this week, show "No invoices to recap" message instead of sending.
+  Verify: Click button → check inbox for recap email. Click with 0 invoices this week → informative message shown.
