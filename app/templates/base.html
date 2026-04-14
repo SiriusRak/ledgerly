@@ -12,14 +12,21 @@
 
   {# Dark nav bar #}
   <nav style="background: var(--color-nav);">
-    <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-2.5">
+    <div class="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-2.5">
       <a href="/" class="flex items-center gap-2">
         <div class="w-7 h-7 rounded flex items-center justify-center" style="background: var(--color-accent);">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
         </div>
-        <span class="text-sm font-semibold text-white tracking-tight">Ledgerly</span>
+        <span class="text-sm font-semibold text-white tracking-tight hidden sm:inline">Ledgerly</span>
       </a>
-      <div class="flex items-center gap-1">
+
+      {# Mobile hamburger #}
+      <button id="nav-toggle" class="sm:hidden p-1.5 rounded" style="color: var(--color-nav-text);" onclick="document.getElementById('nav-menu').classList.toggle('hidden')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+
+      {# Desktop nav #}
+      <div class="hidden sm:flex items-center gap-1">
         <a href="/upload" class="nav-link {% if active_tab == 'upload' %}active{% endif %}">
           {{ icon("upload", "w-4 h-4") }} Upload
         </a>
@@ -34,9 +41,27 @@
         </a>
       </div>
     </div>
+
+    {# Mobile nav dropdown #}
+    <div id="nav-menu" class="hidden sm:hidden border-t" style="border-color: rgba(255,255,255,0.08);">
+      <div class="px-4 py-2 space-y-1">
+        <a href="/upload" class="nav-link w-full {% if active_tab == 'upload' %}active{% endif %}">
+          {{ icon("upload", "w-4 h-4") }} Upload
+        </a>
+        <a href="/queue" class="nav-link w-full {% if active_tab == 'queue' %}active{% endif %}">
+          {{ icon("inbox", "w-4 h-4") }} Queue
+        </a>
+        <a href="/history" class="nav-link w-full {% if active_tab == 'history' %}active{% endif %}">
+          {{ icon("book-open", "w-4 h-4") }} History
+        </a>
+        <a href="/suppliers" class="nav-link w-full {% if active_tab == 'suppliers' %}active{% endif %}">
+          {{ icon("users", "w-4 h-4") }} Suppliers
+        </a>
+      </div>
+    </div>
   </nav>
 
-  <main class="flex-1 max-w-6xl mx-auto w-full px-6 py-8">
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
     {% block content %}{% endblock %}
   </main>
 

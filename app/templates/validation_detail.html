@@ -32,12 +32,12 @@
 </div>
 
 {# Split pane #}
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-5" style="min-height: 72vh;">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:min-h-[72vh]">
 
   {# Left: PDF viewer #}
   <div class="card overflow-hidden">
     {% if pdf_url %}
-    <iframe src="{{ pdf_url }}" class="w-full h-full min-h-[72vh]" title="Invoice preview"></iframe>
+    <iframe src="{{ pdf_url }}" class="w-full h-full min-h-[50vh] lg:min-h-[72vh]" title="Invoice preview"></iframe>
     {% else %}
     <div class="flex items-center justify-center h-full" style="color: var(--color-text-muted);">
       <span class="text-sm">PDF not available</span>

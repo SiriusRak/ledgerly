@@ -3,7 +3,7 @@
 {% block content %}
 {% from "macros/icons.html" import icon %}
 
-<div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
   <div>
     <h1 class="text-2xl font-bold tracking-tight">Invoice history</h1>
     {% if filter_supplier_name %}
@@ -16,8 +16,8 @@
     {% endif %}
   </div>
 
-  <div class="flex items-center gap-2 flex-wrap">
-    <select id="month-select" class="input-field" style="width: auto;">
+  <div class="grid grid-cols-2 sm:flex sm:items-center gap-2">
+    <select id="month-select" class="input-field col-span-1">
       {% if months %}
         {% for m in months %}
         <option value="{{ m }}">{{ m }}</option>
@@ -26,24 +26,24 @@
         <option value="">No data</option>
       {% endif %}
     </select>
-    <select id="client-select" class="input-field" style="width: auto;">
+    <select id="client-select" class="input-field col-span-1">
       <option value="">All clients</option>
       {% for c in clients %}
       <option value="{{ c.id }}">{{ c.name }} ({{ c.code }})</option>
       {% endfor %}
     </select>
-    <a id="btn-xlsx" href="#" class="btn-primary">
+    <a id="btn-xlsx" href="#" class="btn-primary text-center">
       {{ icon("download", "w-4 h-4") }} .xlsx
     </a>
-    <a id="btn-csv" href="#" class="btn-secondary">
+    <a id="btn-csv" href="#" class="btn-secondary text-center">
       {{ icon("download", "w-4 h-4") }} CSV
     </a>
   </div>
 </div>
 
 {% if invoices %}
-<div class="card overflow-hidden">
-  <table class="min-w-full text-sm">
+<div class="card overflow-x-auto">
+  <table class="min-w-full text-sm whitespace-nowrap">
     <thead>
       <tr style="background: var(--color-surface-sunken); border-bottom: 1px solid var(--color-border);">
         <th class="table-header px-4 py-3 text-left">Date</th>

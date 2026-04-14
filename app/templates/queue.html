@@ -14,7 +14,7 @@
 {% if invoices %}
 <div class="space-y-2">
   {% for inv in invoices %}
-  <a href="/queue/{{ inv.id }}" class="card block px-5 py-4 transition-all hover:shadow-sm"
+  <a href="/queue/{{ inv.id }}" class="card block px-4 sm:px-5 py-3 sm:py-4 transition-all hover:shadow-sm"
      style="border-left: 3px solid transparent;"
      onmouseover="this.style.borderLeftColor='var(--color-accent)'"
      onmouseout="this.style.borderLeftColor='transparent'">
