@@ -1,0 +1,18 @@
+{% from "macros/icons.html" import icon %}
+<div id="invoice-{{ invoice.id }}" class="flex items-center justify-between bg-white rounded-lg border border-gray-200 px-4 py-3"
+  {% if invoice.state in ['pending', 'processing'] and not invoice.state_reason %}
+  hx-get="/invoices/{{ invoice.id }}/status" hx-trigger="every 2s" hx-swap="outerHTML"
+  {% endif %}>
+  <div class="flex items-center gap-3 min-w-0">
+    {% include "partials/status_badge.html" %}
+    <span class="text-sm text-gray-700 truncate">{{ invoice.filename or 'Unknown file' }}</span>
+  </div>
+  <div class="flex items-center gap-2 text-xs text-gray-400 shrink-0">
+    {% if invoice.supplier_name %}
+    <span class="text-gray-500">{{ invoice.supplier_name }}</span>
+    {% endif %}
+    {% if invoice.amount_ttc %}
+    <span class="font-medium text-gray-600">{{ "%.2f"|format(invoice.amount_ttc) }} EUR</span>
+    {% endif %}
+  </div>
+</div>

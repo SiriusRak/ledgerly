@@ -10,25 +10,25 @@
 
 ## Checklist
 
-- [ ] **1. Bootstrap app & infrastructure**
+- [x] **1. Bootstrap app & infrastructure**
   Spec ref: `spec.md > Stack`, `spec.md > Runtime & Deployment`, `spec.md > File Structure`, `spec.md > Data Model`
   What to build: `pyproject.toml` (deps listées §Dependencies), `app/__init__.py`, `app/main.py` (FastAPI + lifespan stub vide), `app/config.py` (pydantic-settings pour tous les env vars du §Runtime), `app/db.py` (Supabase client singleton), `app/routes/health.py` avec `GET /health` → `{"ok":true,"db":true}` après `SELECT 1` Supabase, `migrations/001_init.sql` avec schéma complet (tables `clients`, `suppliers`, `invoices`, `recap_failures`, indexes, RPC `validate_invoice` plpgsql transaction update+upsert). Ajouter `render.yaml`, `.env.example`, `.gitignore`, `README.md` minimal. Exécuter la migration sur le projet Supabase.
   Acceptance: `uvicorn app.main:app` démarre sans erreur ; `GET /health` retourne 200 avec `db:true` ; schéma Supabase visible dans dashboard (4 tables + RPC).
   Verify: `curl localhost:8000/health` → 200 JSON, puis ouvrir Supabase dashboard et confirmer les 4 tables + RPC `validate_invoice`.
 
-- [ ] **2. Frontend shell (Tailwind + base template + Lucide)**
+- [x] **2. Frontend shell (Tailwind + base template + Lucide)**
   Spec ref: `spec.md > Templates & Static`
   What to build: `package.json`, `tailwind.config.js`, `static/css/input.css` (directives Tailwind), `scripts/build_css.sh` (`npx tailwindcss -i input.css -o dist.css --minify`), download + vendor `static/js/htmx.min.js` v1.9 (SRI pin), `app/templates/base.html` (layout, nav 4 onglets Upload/Queue/History/Suppliers, chargement `dist.css` + `htmx.min.js` locaux, pas de CDN), `app/templates/macros/icons.html` (`{% macro icon(name, class="") %}` qui inline les SVG Lucide nécessaires — `loader`, `check-circle`, `alert-triangle`, `copy`, `x-circle`, `upload`, `inbox`, `book-open`, `users`, `download`). Route racine `GET /` qui redirect vers `/upload`.
   Acceptance: page charge avec Tailwind appliqué, nav affichée, icônes Lucide visibles en SVG inline, zéro emoji dans le DOM.
   Verify: ouvrir `http://localhost:8000/` dans le browser, inspecter le DOM → confirmer `<svg>` Lucide (pas d'emoji), `dist.css` servi en local (pas CDN).
 
-- [ ] **3. Pipeline — extraction texte + LLM (Groq JSON mode)**
+- [x] **3. Pipeline — extraction texte + LLM (Groq JSON mode)**
   Spec ref: `spec.md > Pipeline > extractor.py`, `spec.md > Pipeline > llm.py`, `prd.md > Epic 6 > Extraction pipeline`
   What to build: `app/pipeline/extractor.py` avec `extract_text(pdf_bytes) -> (text, source)` — pdfplumber concat pages, fallback Gemini Vision si <50 chars, tronquer 30k chars. `app/pipeline/llm.py` avec `extract_fields(text) -> dict` appelant Groq `llama-3.3-70b-versatile` en JSON mode, temperature 0.1, SYSTEM_PROMPT strict (ignorer totaux partiels, ISO dates, point décimal). Schéma retour : `supplier_name, siret, invoice_date, invoice_number, amount_ht, amount_tva, amount_ttc, tva_rate`. Fallback Gemini si Groq 429 ou timeout >15s. Placer 1-2 PDFs réels dans `tests/fixtures/`.
   Acceptance: sur une facture PDF native réelle, `extract_text → llm.extract_fields` retourne un dict conforme au schéma avec amounts cohérents (HT+TVA≈TTC).
   Verify: `pytest tests/test_pipeline_smoke.py -s` (smoke test qui print le dict extrait d'une vraie facture fixture) — inspecter visuellement que les montants matchent la facture.
 
-- [ ] **4. Pipeline — matcher + duplicate + confidence (+ unit tests déterministes)**
+- [x] **4. Pipeline — matcher + duplicate + confidence (+ unit tests déterministes)**
   Spec ref: `spec.md > Pipeline > matcher.py/duplicate.py/confidence.py`, `prd.md > Epic 6 > Supplier matching / Confidence rules`
   What to build: `matcher.py` (SIRET exact → nom normalisé `lower + strip accents NFKD + retirer sarl/sas/sa/eurl/sasu/eirl + collapse ws` → Levenshtein<3 full scan via `python-Levenshtein`). `duplicate.py` (SQL même supplier + même invoice_number OU |amount_ttc diff|<0.01 ET |date diff|≤7j). `confidence.py` (règle γ explicite : duplicate → `('duplicate', reason)` ; supplier None → `('review', "New supplier")` ; |HT+TVA−TTC|>0.02 → `('review', "VAT mismatch: ...")` ; sinon `('auto', None)`). Tests : `tests/test_matcher.py`, `test_duplicate.py`, `test_confidence.py` couvrant chaque branche.
   Acceptance: 100% des unit tests passent ; matcher trouve "EDF SA" == "edf", "E.D.F." == "edf" ; confidence retourne les 4 classes correctement selon fixtures.

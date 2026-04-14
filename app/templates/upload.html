@@ -1,6 +1,84 @@
 {% extends "base.html" %}
 {% block title %}Upload -- Ledgerly{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Upload invoices</h1>
-<p class="text-gray-500">Drop zone coming in step 5.</p>
+{% from "macros/icons.html" import icon %}
+
+<h1 class="text-2xl font-bold mb-6">Upload invoices</h1>
+
+<!-- Drop zone -->
+<div id="dropzone"
+     class="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors"
+     onclick="document.getElementById('file-input').click()">
+  <div class="flex flex-col items-center gap-3 text-gray-500">
+    {{ icon("upload", "w-10 h-10 text-gray-400") }}
+    <p class="text-sm font-medium">Drop PDF invoices here or click to browse</p>
+    <p class="text-xs text-gray-400">Maximum 5 PDF files per upload</p>
+  </div>
+  <input id="file-input" type="file" accept=".pdf,application/pdf" multiple class="hidden">
+</div>
+
+<div id="upload-error" class="hidden mt-3 text-sm text-red-600 font-medium"></div>
+
+<!-- Batch banner -->
+<div id="batch-banner"
+     {% if processing_count > 0 %}
+     hx-get="/batch/status" hx-trigger="every 3s" hx-swap="outerHTML"
+     {% endif %}>
+  {% if processing_count > 0 %}
+  <div class="mt-4 flex items-center gap-2 text-sm text-indigo-600 bg-indigo-50 rounded-lg px-4 py-2">
+    {{ icon("loader", "w-4 h-4 animate-spin") }}
+    <span>{{ processing_count }} invoice{{ "s" if processing_count > 1 else "" }} processing...</span>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Batch rows container -->
+<div id="batch-rows" class="mt-6 space-y-2">
+  {% for invoice in invoices %}
+  {% include "partials/batch_row.html" %}
+  {% endfor %}
+</div>
+
+<form id="upload-form" class="hidden"
+      hx-post="/upload"
+      hx-target="#batch-rows"
+      hx-swap="afterbegin"
+      hx-encoding="multipart/form-data">
+</form>
+
+<script>
+(function() {
+  var dropzone = document.getElementById('dropzone');
+  var fileInput = document.getElementById('file-input');
+  var errorDiv = document.getElementById('upload-error');
+  var form = document.getElementById('upload-form');
+
+  function showError(msg) {
+    errorDiv.textContent = msg;
+    errorDiv.classList.remove('hidden');
+    setTimeout(function() { errorDiv.classList.add('hidden'); }, 5000);
+  }
+
+  function handleFiles(files) {
+    errorDiv.classList.add('hidden');
+    if (files.length > 5) return showError('Maximum 5 files allowed.');
+    for (var i = 0; i < files.length; i++) {
+      if (files[i].type !== 'application/pdf' && !files[i].name.toLowerCase().endsWith('.pdf')) {
+        return showError('Only PDF files are accepted.');
+      }
+    }
+    var fd = new FormData();
+    for (var j = 0; j < files.length; j++) fd.append('files', files[j]);
+    htmx.ajax('POST', '/upload', {target: '#batch-rows', swap: 'afterbegin', values: fd});
+  }
+
+  fileInput.addEventListener('change', function() { if (this.files.length) handleFiles(this.files); this.value = ''; });
+  dropzone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('border-indigo-400', 'bg-indigo-50'); });
+  dropzone.addEventListener('dragleave', function() { this.classList.remove('border-indigo-400', 'bg-indigo-50'); });
+  dropzone.addEventListener('drop', function(e) {
+    e.preventDefault(); this.classList.remove('border-indigo-400', 'bg-indigo-50');
+    handleFiles(e.dataTransfer.files);
+  });
+})();
+</script>
 {% endblock %}

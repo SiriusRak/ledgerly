@@ -1,0 +1,12 @@
+{% from "macros/icons.html" import icon %}
+<div id="batch-banner"
+     {% if processing_count > 0 %}
+     hx-get="/batch/status" hx-trigger="every 3s" hx-swap="outerHTML"
+     {% endif %}>
+  {% if processing_count > 0 %}
+  <div class="mt-4 flex items-center gap-2 text-sm text-indigo-600 bg-indigo-50 rounded-lg px-4 py-2">
+    {{ icon("loader", "w-4 h-4 animate-spin") }}
+    <span>{{ processing_count }} invoice{{ "s" if processing_count > 1 else "" }} processing...</span>
+  </div>
+  {% endif %}
+</div>
