@@ -8,6 +8,24 @@
   <p class="text-sm mt-1" style="color: var(--color-text-secondary);">Drop PDF files to start processing</p>
 </div>
 
+{# Recap from previous batches #}
+{% set done_auto = invoices | selectattr("state", "equalto", "done") | selectattr("classification", "equalto", "auto") | list | length %}
+{% set done_manual = invoices | selectattr("state", "equalto", "done") | rejectattr("classification", "equalto", "auto") | list | length %}
+{% set in_review = invoices | selectattr("state_reason", "defined") | selectattr("state_reason") | list | length %}
+{% if done_auto + done_manual > 0 or in_review > 0 %}
+<div class="card px-4 py-3 mb-5 flex items-center justify-between text-sm">
+  <span style="color: var(--color-text-secondary);">
+    Recent: <strong>{{ done_auto }}</strong> auto-classified, <strong>{{ done_manual }}</strong> manual
+    {% if in_review > 0 %}
+    , <strong>{{ in_review }}</strong> to review
+    {% endif %}
+  </span>
+  {% if in_review > 0 %}
+  <a href="/queue" class="btn-primary text-xs py-1 px-3">Open queue ({{ in_review }})</a>
+  {% endif %}
+</div>
+{% endif %}
+
 {# Drop zone #}
 <div id="dropzone"
      class="card cursor-pointer transition-all"

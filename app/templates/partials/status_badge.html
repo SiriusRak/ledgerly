@@ -9,7 +9,9 @@
   {{ icon("check-circle", "w-3.5 h-3.5") }}
   Auto-classified
 </span>
-{% if invoice.supplier_id %}
+{% if invoice.supplier_id and invoice.suppliers is mapping %}
+<span class="badge badge-teal ml-1">Recognized -- {{ invoice.suppliers.name }} ({{ invoice.suppliers.invoices_count | default(1) }}{{ 'st' if invoice.suppliers.invoices_count == 1 else ('nd' if invoice.suppliers.invoices_count == 2 else ('rd' if invoice.suppliers.invoices_count == 3 else 'th')) }} time)</span>
+{% elif invoice.supplier_id %}
 <span class="badge badge-teal ml-1">Recognized</span>
 {% endif %}
 {% elif invoice.state == 'processing' and invoice.state_reason %}

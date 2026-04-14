@@ -21,7 +21,7 @@ async def upload_page(request: Request):
     # Fetch recent invoices for the batch view (last 20)
     resp = (
         sb.table("invoices")
-        .select("*")
+        .select("*, suppliers(name, invoices_count)")
         .order("uploaded_at", desc=True)
         .limit(20)
         .execute()
@@ -83,7 +83,7 @@ async def upload_files(
 @router.get("/invoices/{invoice_id}/status")
 async def invoice_status(request: Request, invoice_id: str):
     sb = get_supabase()
-    resp = sb.table("invoices").select("*").eq("id", invoice_id).single().execute()
+    resp = sb.table("invoices").select("*, suppliers(name, invoices_count)").eq("id", invoice_id).single().execute()
     if not resp.data:
         raise HTTPException(status_code=404, detail="Invoice not found")
     return templates.TemplateResponse(name="partials/batch_row.html", request=request, context={
@@ -98,8 +98,10 @@ async def batch_status(request: Request):
     resp_pending = sb.table("invoices").select("id", count="exact").eq("state", "pending").execute()
     resp_proc = sb.table("invoices").select("id", count="exact").eq("state", "processing").is_("state_reason", "null").execute()
     processing_count = (resp_pending.count or 0) + (resp_proc.count or 0)
+    # was_processing=True because this endpoint is only polled when banner had processing_count > 0
     return templates.TemplateResponse(name="partials/batch_banner.html", request=request, context={
         "processing_count": processing_count,
+        "was_processing": processing_count == 0,
     })
 
 
@@ -110,7 +112,7 @@ async def retry_invoice(
     background_tasks: BackgroundTasks,
 ):
     sb = get_supabase()
-    resp = sb.table("invoices").select("*").eq("id", invoice_id).single().execute()
+    resp = sb.table("invoices").select("*, suppliers(name, invoices_count)").eq("id", invoice_id).single().execute()
     if not resp.data:
         raise HTTPException(status_code=404, detail="Invoice not found")
 

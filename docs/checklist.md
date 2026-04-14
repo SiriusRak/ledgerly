@@ -76,7 +76,7 @@
   Acceptance: URL publique Render répond, `/health` retourne 200, upload d'une facture fonctionne end-to-end sur l'instance déployée.
   Verify: `curl https://ledgerly-xxxx.onrender.com/health` → 200. Ouvrir l'URL dans browser, drop une facture demo → voir la classification arriver en prod. Log Render montre les jobs APScheduler démarrés.
 
-- [ ] **12. Devpost submission (GitHub repo + page + screenshots + video)**
+- [x] **12. Devpost submission (GitHub repo + page + screenshots + video)**
   Spec ref: `prd.md > Submission Copy`, `prd.md > Epic 7`
   What to build: S'assurer que le repo GitHub est public et à jour (push final). Enregistrer une démo vidéo ≤2 min (drop EDF#1 → validation 1 clic → drop EDF#2 → auto-classified + badge → download xlsx → ouvrir xlsx → recap email), upload YouTube unlisted. Remplir le formulaire Devpost : Title "Ledgerly", Tagline, sections Inspiration/What it does/How we built it/Challenges/Accomplishments/What we learned/What's next (reprendre draft PRD), built-with tags (fastapi/htmx/tailwind/supabase/groq/gemini/python/render/resend), uploader screenshots de `demo-assets/`, attacher xlsx final en asset, lien repo GitHub, lien live Render, lien vidéo YouTube.
   Acceptance: Submission Devpost visible avec badge "Submitted", tous les champs requis remplis, liens (repo/live/video) fonctionnels, screenshots nets.

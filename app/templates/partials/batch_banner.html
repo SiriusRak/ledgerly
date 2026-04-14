@@ -8,5 +8,20 @@
     {{ icon("loader", "w-4 h-4 animate-spin") }}
     <span>{{ processing_count }} invoice{{ "s" if processing_count > 1 else "" }} processing...</span>
   </div>
+  {% elif was_processing %}
+  {# Batch just finished — show toast OOB #}
+  <div id="toast" hx-swap-oob="true"
+       class="fixed bottom-6 right-6 card shadow-lg px-4 py-3 flex items-center gap-3 text-sm max-w-md animate-fade-in-up" style="z-index: 50;">
+    <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background: #dcfce7;">
+      {{ icon("check-circle", "w-4 h-4 text-green-600") }}
+    </div>
+    <div>
+      <p class="font-medium" style="color: var(--color-text-primary);">Batch complete</p>
+      <p class="text-xs mt-0.5" style="color: var(--color-text-muted);">All invoices processed</p>
+    </div>
+    <button onclick="this.parentElement.remove()" class="ml-auto" style="color: var(--color-text-muted);">
+      {{ icon("x-circle", "w-4 h-4") }}
+    </button>
+  </div>
   {% endif %}
 </div>
