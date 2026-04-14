@@ -1,18 +1,20 @@
 {% from "macros/icons.html" import icon %}
-<div id="invoice-{{ invoice.id }}" class="card flex items-center justify-between px-4 py-3 animate-fade-in-up"
+<div id="invoice-{{ invoice.id }}" class="card px-3 sm:px-4 py-2.5 sm:py-3 animate-fade-in-up"
   {% if invoice.state in ['pending', 'processing'] and not invoice.state_reason %}
   hx-get="/invoices/{{ invoice.id }}/status" hx-trigger="every 2s" hx-swap="outerHTML"
   {% endif %}>
-  <div class="flex items-center gap-3 min-w-0">
-    {% include "partials/status_badge.html" %}
-    <span class="text-sm truncate" style="color: var(--color-text-primary);">{{ invoice.pdf_original_name or 'Unknown file' }}</span>
-  </div>
-  <div class="flex items-center gap-3 text-xs shrink-0">
-    {% if invoice.supplier_name_raw %}
-    <span style="color: var(--color-text-secondary);">{{ invoice.supplier_name_raw }}</span>
-    {% endif %}
-    {% if invoice.amount_ttc %}
-    <span class="mono font-medium" style="color: var(--color-text-primary);">{{ "%.2f"|format(invoice.amount_ttc) }} EUR</span>
-    {% endif %}
+  <div class="flex items-start sm:items-center justify-between gap-2">
+    <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+      <div class="shrink-0">{% include "partials/status_badge.html" %}</div>
+      <span class="text-xs sm:text-sm truncate" style="color: var(--color-text-primary);">{{ invoice.pdf_original_name or 'Unknown file' }}</span>
+    </div>
+    <div class="flex flex-col sm:flex-row items-end sm:items-center gap-0.5 sm:gap-3 text-xs shrink-0">
+      {% if invoice.supplier_name_raw %}
+      <span class="hidden sm:inline" style="color: var(--color-text-secondary);">{{ invoice.supplier_name_raw }}</span>
+      {% endif %}
+      {% if invoice.amount_ttc %}
+      <span class="mono font-medium" style="color: var(--color-text-primary);">{{ "%.2f"|format(invoice.amount_ttc) }} EUR</span>
+      {% endif %}
+    </div>
   </div>
 </div>

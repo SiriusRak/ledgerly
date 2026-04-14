@@ -3,21 +3,21 @@
 {% block content %}
 {% from "macros/icons.html" import icon %}
 
-<div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
   <div>
-    <h1 class="text-2xl font-bold tracking-tight">Invoice history</h1>
+    <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Invoice history</h1>
     {% if filter_supplier_name %}
-    <p class="text-sm mt-1" style="color: var(--color-text-secondary);">
+    <p class="text-xs sm:text-sm mt-1" style="color: var(--color-text-secondary);">
       Filtered by <span class="font-medium" style="color: var(--color-text-primary);">{{ filter_supplier_name }}</span>
       <a href="/history" class="ml-2 text-xs underline" style="color: var(--color-accent);">Clear</a>
     </p>
     {% else %}
-    <p class="text-sm mt-1" style="color: var(--color-text-secondary);">All validated invoices</p>
+    <p class="text-xs sm:text-sm mt-1" style="color: var(--color-text-secondary);">All validated invoices</p>
     {% endif %}
   </div>
 
   <div class="grid grid-cols-2 sm:flex sm:items-center gap-2">
-    <select id="month-select" class="input-field col-span-1">
+    <select id="month-select" class="input-field text-xs sm:text-sm col-span-1">
       {% if months %}
         {% for m in months %}
         <option value="{{ m }}">{{ m }}</option>
@@ -26,23 +26,24 @@
         <option value="">No data</option>
       {% endif %}
     </select>
-    <select id="client-select" class="input-field col-span-1">
+    <select id="client-select" class="input-field text-xs sm:text-sm col-span-1">
       <option value="">All clients</option>
       {% for c in clients %}
-      <option value="{{ c.id }}">{{ c.name }} ({{ c.code }})</option>
+      <option value="{{ c.id }}">{{ c.name }}</option>
       {% endfor %}
     </select>
-    <a id="btn-xlsx" href="#" class="btn-primary text-center">
+    <a id="btn-xlsx" href="#" class="btn-primary text-center text-xs sm:text-sm">
       {{ icon("download", "w-4 h-4") }} .xlsx
     </a>
-    <a id="btn-csv" href="#" class="btn-secondary text-center">
+    <a id="btn-csv" href="#" class="btn-secondary text-center text-xs sm:text-sm">
       {{ icon("download", "w-4 h-4") }} CSV
     </a>
   </div>
 </div>
 
 {% if invoices %}
-<div class="card overflow-x-auto">
+{# Mobile: card list. Desktop: table #}
+<div class="hidden sm:block card overflow-x-auto">
   <table class="min-w-full text-sm whitespace-nowrap">
     <thead>
       <tr style="background: var(--color-surface-sunken); border-bottom: 1px solid var(--color-border);">
@@ -61,23 +62,15 @@
       {% set cli = inv.clients if inv.clients is mapping else {} %}
       <tr style="border-bottom: 1px solid var(--color-border);" class="hover:bg-gray-50 transition-colors">
         <td class="px-4 py-2.5 whitespace-nowrap mono text-xs">
-          {% if inv.invoice_date %}
-            {{ inv.invoice_date[8:10] }}/{{ inv.invoice_date[5:7] }}/{{ inv.invoice_date[0:4] }}
-          {% endif %}
+          {% if inv.invoice_date %}{{ inv.invoice_date[8:10] }}/{{ inv.invoice_date[5:7] }}/{{ inv.invoice_date[0:4] }}{% endif %}
         </td>
         <td class="px-4 py-2.5">
           {% if sup.id %}
-          <a href="/history?supplier_id={{ sup.id }}" class="font-medium hover:underline" style="color: var(--color-accent);">
-            {{ sup.name or inv.supplier_name_raw or '-' }}
-          </a>
-          {% else %}
-            {{ inv.supplier_name_raw or '-' }}
-          {% endif %}
+          <a href="/history?supplier_id={{ sup.id }}" class="font-medium hover:underline" style="color: var(--color-accent);">{{ sup.name or inv.supplier_name_raw or '-' }}</a>
+          {% else %}{{ inv.supplier_name_raw or '-' }}{% endif %}
         </td>
         <td class="px-4 py-2.5 text-right mono whitespace-nowrap font-medium">
-          {% if inv.amount_ttc is not none %}
-            {{ "%.2f"|format(inv.amount_ttc)|replace(".", ",") }}
-          {% endif %}
+          {% if inv.amount_ttc is not none %}{{ "%.2f"|format(inv.amount_ttc)|replace(".", ",") }}{% endif %}
         </td>
         <td class="px-4 py-2.5 mono text-xs">{{ inv.compte or '-' }}</td>
         <td class="px-4 py-2.5 text-xs">{{ cli.code or '-' }}</td>
@@ -90,22 +83,53 @@
         </td>
         <td class="px-4 py-2.5 text-center">
           {% if inv.pdf_storage_path %}
-          <a href="/history/pdf-url?path={{ inv.pdf_storage_path | urlencode }}" target="_blank" rel="noopener"
-             style="color: var(--color-accent);" class="hover:opacity-70" title="Open PDF">
-            {{ icon("book-open", "w-4 h-4 inline") }}
-          </a>
-          {% else %}
-            <span style="color: var(--color-text-muted);">--</span>
-          {% endif %}
+          <a href="/history/pdf-url?path={{ inv.pdf_storage_path | urlencode }}" target="_blank" rel="noopener" style="color: var(--color-accent);" class="hover:opacity-70">{{ icon("book-open", "w-4 h-4 inline") }}</a>
+          {% else %}<span style="color: var(--color-text-muted);">--</span>{% endif %}
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
+
+{# Mobile card list #}
+<div class="sm:hidden space-y-2">
+  {% for inv in invoices %}
+  {% set sup = inv.suppliers if inv.suppliers is mapping else {} %}
+  {% set cli = inv.clients if inv.clients is mapping else {} %}
+  <div class="card px-3 py-3">
+    <div class="flex items-start justify-between gap-2 mb-1.5">
+      <div class="min-w-0">
+        {% if sup.id %}
+        <a href="/history?supplier_id={{ sup.id }}" class="font-medium text-sm truncate block" style="color: var(--color-accent);">{{ sup.name or inv.supplier_name_raw or '-' }}</a>
+        {% else %}
+        <span class="font-medium text-sm truncate block" style="color: var(--color-text-primary);">{{ inv.supplier_name_raw or '-' }}</span>
+        {% endif %}
+      </div>
+      <span class="mono text-sm font-semibold shrink-0" style="color: var(--color-text-primary);">
+        {% if inv.amount_ttc is not none %}{{ "%.2f"|format(inv.amount_ttc)|replace(".", ",") }}{% endif %}
+      </span>
+    </div>
+    <div class="flex items-center gap-2 text-xs" style="color: var(--color-text-muted);">
+      {% if inv.invoice_date %}
+      <span class="mono">{{ inv.invoice_date[8:10] }}/{{ inv.invoice_date[5:7] }}/{{ inv.invoice_date[0:4] }}</span>
+      {% endif %}
+      <span class="mono">{{ inv.compte or '-' }}</span>
+      {% if inv.classification == 'auto' %}
+        <span class="badge" style="background: #dcfce7; color: #15803d;">Auto</span>
+      {% else %}
+        <span class="badge badge-blue">Manual</span>
+      {% endif %}
+      {% if inv.pdf_storage_path %}
+      <a href="/history/pdf-url?path={{ inv.pdf_storage_path | urlencode }}" target="_blank" rel="noopener" style="color: var(--color-accent);" class="ml-auto">{{ icon("book-open", "w-3.5 h-3.5") }}</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
 {% else %}
-<div class="text-center py-20">
-  <p class="text-lg font-medium" style="color: var(--color-text-secondary);">No validated invoices yet</p>
+<div class="text-center py-12 sm:py-20">
+  <p class="text-base sm:text-lg font-medium" style="color: var(--color-text-secondary);">No validated invoices yet</p>
 </div>
 {% endif %}
 

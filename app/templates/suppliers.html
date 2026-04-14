@@ -3,13 +3,14 @@
 {% block content %}
 {% from "macros/icons.html" import icon %}
 
-<div class="mb-8">
-  <h1 class="text-2xl font-bold tracking-tight">Known Suppliers</h1>
-  <p class="text-sm mt-1" style="color: var(--color-text-secondary);">Learned from validated invoices</p>
+<div class="mb-6 sm:mb-8">
+  <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Known Suppliers</h1>
+  <p class="text-xs sm:text-sm mt-1" style="color: var(--color-text-secondary);">Learned from validated invoices</p>
 </div>
 
 {% if suppliers %}
-<div class="card overflow-x-auto">
+{# Desktop: table #}
+<div class="hidden sm:block card overflow-x-auto">
   <table class="w-full text-sm whitespace-nowrap">
     <thead>
       <tr style="background: var(--color-surface-sunken); border-bottom: 1px solid var(--color-border);">
@@ -35,12 +36,30 @@
     </tbody>
   </table>
 </div>
-{% else %}
-<div class="text-center py-20">
-  <div class="w-16 h-16 rounded-xl mx-auto flex items-center justify-center mb-4" style="background: var(--color-surface-sunken);">
-    {{ icon("users", "w-7 h-7") }}
+
+{# Mobile: card list #}
+<div class="sm:hidden space-y-2">
+  {% for s in suppliers %}
+  <div class="card px-3 py-3">
+    <div class="flex items-start justify-between gap-2 mb-1">
+      <span class="font-medium text-sm" style="color: var(--color-text-primary);">{{ s.name }}</span>
+      <span class="mono text-xs font-medium shrink-0" style="color: var(--color-accent);">{{ s.invoices_count }} inv.</span>
+    </div>
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs" style="color: var(--color-text-muted);">
+      {% if s.siret %}<span class="mono">{{ s.siret }}</span>{% endif %}
+      {% if s.default_compte %}<span class="mono">{{ s.default_compte }}</span>{% endif %}
+      {% if s.clients %}<span>{{ s.clients.name }}</span>{% endif %}
+      {% if s.last_seen %}<span class="mono">{{ s.last_seen[:10] }}</span>{% endif %}
+    </div>
   </div>
-  <p class="text-lg font-medium" style="color: var(--color-text-primary);">No suppliers learned yet</p>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-12 sm:py-20">
+  <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl mx-auto flex items-center justify-center mb-4" style="background: var(--color-surface-sunken);">
+    {{ icon("users", "w-6 h-6 sm:w-7 sm:h-7") }}
+  </div>
+  <p class="text-base sm:text-lg font-medium" style="color: var(--color-text-primary);">No suppliers learned yet</p>
   <p class="text-sm mt-1" style="color: var(--color-text-muted);">Suppliers are learned automatically when invoices are processed</p>
 </div>
 {% endif %}

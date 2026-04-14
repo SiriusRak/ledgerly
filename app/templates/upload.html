@@ -3,9 +3,9 @@
 {% block content %}
 {% from "macros/icons.html" import icon %}
 
-<div class="mb-8">
-  <h1 class="text-2xl font-bold tracking-tight">Upload invoices</h1>
-  <p class="text-sm mt-1" style="color: var(--color-text-secondary);">Drop PDF files to start processing</p>
+<div class="mb-6 sm:mb-8">
+  <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Upload invoices</h1>
+  <p class="text-xs sm:text-sm mt-1" style="color: var(--color-text-secondary);">Drop PDF files to start processing</p>
 </div>
 
 {# Recap from previous batches #}
@@ -13,15 +13,13 @@
 {% set done_manual = invoices | selectattr("state", "equalto", "done") | rejectattr("classification", "equalto", "auto") | list | length %}
 {% set in_review = invoices | selectattr("state_reason", "defined") | selectattr("state_reason") | list | length %}
 {% if done_auto + done_manual > 0 or in_review > 0 %}
-<div class="card px-4 py-3 mb-5 flex items-center justify-between text-sm">
+<div class="card px-3 sm:px-4 py-2.5 sm:py-3 mb-4 sm:mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
   <span style="color: var(--color-text-secondary);">
-    Recent: <strong>{{ done_auto }}</strong> auto-classified, <strong>{{ done_manual }}</strong> manual
-    {% if in_review > 0 %}
-    , <strong>{{ in_review }}</strong> to review
-    {% endif %}
+    Recent: <strong>{{ done_auto }}</strong> auto, <strong>{{ done_manual }}</strong> manual
+    {% if in_review > 0 %}, <strong>{{ in_review }}</strong> to review{% endif %}
   </span>
   {% if in_review > 0 %}
-  <a href="/queue" class="btn-primary text-xs py-1 px-3">Open queue ({{ in_review }})</a>
+  <a href="/queue" class="btn-primary text-xs py-1 px-3 self-start sm:self-auto">Open queue ({{ in_review }})</a>
   {% endif %}
 </div>
 {% endif %}
@@ -35,9 +33,9 @@
      onmouseout="this.style.borderColor='var(--color-border-strong)'">
   <div class="flex flex-col items-center gap-3 sm:gap-4 py-8 sm:py-14">
     <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center" style="background: var(--color-accent-light);">
-      {{ icon("upload", "w-6 h-6") }}
+      {{ icon("upload", "w-5 h-5 sm:w-6 sm:h-6") }}
     </div>
-    <div class="text-center">
+    <div class="text-center px-4">
       <p class="text-sm font-medium" style="color: var(--color-text-primary);">Drop PDF invoices here or click to browse</p>
       <p class="text-xs mt-1" style="color: var(--color-text-muted);">Maximum 5 PDF files per upload</p>
     </div>
@@ -53,7 +51,7 @@
      hx-get="/batch/status" hx-trigger="every 3s" hx-swap="outerHTML"
      {% endif %}>
   {% if processing_count > 0 %}
-  <div class="mt-4 flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded" style="background: var(--color-accent-light); color: var(--color-accent);">
+  <div class="mt-4 flex items-center gap-2 text-sm font-medium px-3 sm:px-4 py-2.5 rounded" style="background: var(--color-accent-light); color: var(--color-accent);">
     {{ icon("loader", "w-4 h-4 animate-spin") }}
     <span>{{ processing_count }} invoice{{ "s" if processing_count > 1 else "" }} processing...</span>
   </div>
@@ -61,7 +59,7 @@
 </div>
 
 {# Batch rows #}
-<div id="batch-rows" class="mt-6 space-y-2">
+<div id="batch-rows" class="mt-4 sm:mt-6 space-y-2">
   {% for invoice in invoices %}
   {% include "partials/batch_row.html" %}
   {% endfor %}
