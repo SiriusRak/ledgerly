@@ -92,7 +92,7 @@
       {% for inv in invoices %}
       {% set sup = inv.suppliers if inv.suppliers is mapping else {} %}
       {% set cli = inv.clients if inv.clients is mapping else {} %}
-      <tr style="border-bottom: 1px solid var(--color-border);" class="hover:bg-gray-50 transition-colors" data-date="{{ inv.invoice_date or '' }}" data-supplier="{{ (sup.name or inv.supplier_name_raw or '')|lower }}" data-amount="{{ inv.amount_ttc if inv.amount_ttc is not none else 0 }}" data-compte="{{ (inv.compte or '')|lower }}" data-status="{{ inv.classification or '' }}">
+      <tr style="border-bottom: 1px solid var(--color-border);" class="row-hover transition-colors" data-date="{{ inv.invoice_date or '' }}" data-supplier="{{ (sup.name or inv.supplier_name_raw or '')|lower }}" data-amount="{{ inv.amount_ttc if inv.amount_ttc is not none else 0 }}" data-compte="{{ (inv.compte or '')|lower }}" data-status="{{ inv.classification or '' }}">
         <td class="px-4 py-2.5 whitespace-nowrap mono text-xs">
           {% if inv.invoice_date %}{{ inv.invoice_date[8:10] }}/{{ inv.invoice_date[5:7] }}/{{ inv.invoice_date[0:4] }}{% endif %}
         </td>
@@ -108,7 +108,7 @@
         <td class="px-4 py-2.5 text-xs">{{ cli.code or '-' }}</td>
         <td class="px-4 py-2.5">
           {% if inv.classification == 'auto' %}
-            <span class="badge" style="background: #dcfce7; color: #15803d;">{{ icon("check-circle", "w-3 h-3") }} Auto</span>
+            <span class="badge" class="badge-success">{{ icon("check-circle", "w-3 h-3") }} Auto</span>
           {% else %}
             <span class="badge badge-blue">Manual</span>
           {% endif %}
@@ -148,7 +148,7 @@
       {% endif %}
       <span class="mono">{{ inv.compte or '-' }}</span>
       {% if inv.classification == 'auto' %}
-        <span class="badge" style="background: #dcfce7; color: #15803d;">Auto</span>
+        <span class="badge" class="badge-success">Auto</span>
       {% else %}
         <span class="badge badge-blue">Manual</span>
       {% endif %}

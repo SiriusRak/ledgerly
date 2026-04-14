@@ -5,7 +5,7 @@
   Extracting...
 </span>
 {% elif invoice.state == 'done' and invoice.classification == 'auto' %}
-<span class="badge" style="background: #dcfce7; color: #15803d;">
+<span class="badge" class="badge-success">
   {{ icon("check-circle", "w-3.5 h-3.5") }}
   Auto-classified
 </span>
@@ -29,14 +29,14 @@
   {{ icon("x-circle", "w-3.5 h-3.5") }}
   Error
 </span>
-<button class="ml-1 text-xs text-red-600 underline hover:text-red-800"
+<button class="ml-1 text-xs text-danger underline hover:opacity-80"
         hx-post="/invoices/{{ invoice.id }}/retry"
         hx-target="#invoice-{{ invoice.id }}"
         hx-swap="outerHTML">
   Retry
 </button>
 {% elif invoice.state == 'done' %}
-<span class="badge" style="background: #dcfce7; color: #15803d;">
+<span class="badge" class="badge-success">
   {{ icon("check-circle", "w-3.5 h-3.5") }}
   Done
 </span>

@@ -6,11 +6,11 @@
 {# Reason banner #}
 {% set reason = invoice.state_reason|lower if invoice.state_reason else '' %}
 {% if 'duplicate' in reason %}
-<div class="card mb-4 sm:mb-5 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2 text-xs sm:text-sm font-medium" style="border-left: 3px solid #ef4444; background: #fef2f2; color: #b91c1c;">
+<div class="card mb-4 sm:mb-5 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2 text-xs sm:text-sm font-medium" class="banner-danger">
   {{ icon("copy", "w-4 h-4 shrink-0") }} <span class="truncate">{{ invoice.state_reason }}</span>
 </div>
 {% elif 'vat' in reason or 'tva' in reason %}
-<div class="card mb-4 sm:mb-5 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2 text-xs sm:text-sm font-medium" style="border-left: 3px solid #f59e0b; background: #fffbeb; color: #92400e;">
+<div class="card mb-4 sm:mb-5 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2 text-xs sm:text-sm font-medium" class="banner-warning">
   {{ icon("alert-triangle", "w-4 h-4 shrink-0") }} <span class="truncate">{{ invoice.state_reason }}</span>
 </div>
 {% elif 'new supplier' in reason or 'nouveau' in reason %}

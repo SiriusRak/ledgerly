@@ -24,7 +24,7 @@
     </thead>
     <tbody>
       {% for s in suppliers %}
-      <tr style="border-bottom: 1px solid var(--color-border);" class="hover:bg-gray-50 transition-colors">
+      <tr style="border-bottom: 1px solid var(--color-border);" class="row-hover transition-colors">
         <td class="px-4 py-3 font-medium" style="color: var(--color-text-primary);">{{ s.name }}</td>
         <td class="px-4 py-3 mono text-xs" style="color: var(--color-text-muted);">{{ s.siret or '-' }}</td>
         <td class="px-4 py-3 mono text-xs">{{ s.default_compte or '-' }}</td>

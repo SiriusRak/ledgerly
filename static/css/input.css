@@ -22,6 +22,48 @@
     --color-border-strong: #d1d5db;
   }
 
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-surface: #0f1117;
+      --color-surface-raised: #1a1d23;
+      --color-surface-sunken: #0a0c10;
+      --color-nav: #0a0c10;
+      --color-nav-text: #6b7280;
+      --color-nav-active: #e5e7eb;
+      --color-accent: #14b8a6;
+      --color-accent-light: #042f2e;
+      --color-accent-hover: #0d9488;
+      --color-text-primary: #e5e7eb;
+      --color-text-secondary: #9ca3af;
+      --color-text-muted: #6b7280;
+      --color-border: #2a2d35;
+      --color-border-strong: #3a3d45;
+      --color-success-bg: #052e16;
+      --color-success-text: #4ade80;
+      --color-warning-bg: #422006;
+      --color-warning-text: #fbbf24;
+      --color-danger-bg: #450a0a;
+      --color-danger-text: #f87171;
+      --color-info-bg: #0c2d48;
+      --color-info-text: #38bdf8;
+      --color-neutral-bg: #2a2d35;
+      --color-neutral-text: #9ca3af;
+    }
+  }
+
+  :root {
+    --color-success-bg: #dcfce7;
+    --color-success-text: #15803d;
+    --color-warning-bg: #fffbeb;
+    --color-warning-text: #92400e;
+    --color-danger-bg: #fef2f2;
+    --color-danger-text: #b91c1c;
+    --color-info-bg: #f0f9ff;
+    --color-info-text: #0369a1;
+    --color-neutral-bg: #f3f4f6;
+    --color-neutral-text: #4b5563;
+  }
+
   body {
     font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
     background: var(--color-surface);
@@ -63,16 +105,20 @@
     color: var(--color-accent);
   }
   .badge-amber {
-    @apply bg-amber-50 text-amber-700;
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
   }
   .badge-red {
-    @apply bg-red-50 text-red-700;
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
   }
   .badge-blue {
-    @apply bg-sky-50 text-sky-700;
+    background: var(--color-info-bg);
+    color: var(--color-info-text);
   }
   .badge-gray {
-    @apply bg-gray-100 text-gray-600;
+    background: var(--color-neutral-bg);
+    color: var(--color-neutral-text);
   }
 
   .btn-primary {
@@ -113,6 +159,35 @@
 
   .mono {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  .row-hover:hover {
+    background: var(--color-surface-sunken);
+  }
+
+  .banner-danger {
+    border-left: 3px solid var(--color-danger-text);
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+  }
+  .banner-warning {
+    border-left: 3px solid var(--color-warning-text);
+    background: var(--color-warning-bg);
+    color: var(--color-warning-text);
+  }
+
+  .badge-success {
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
+  }
+
+  .icon-success {
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
+  }
+
+  .text-danger {
+    color: var(--color-danger-text);
   }
 
   @keyframes fade-in-up {
