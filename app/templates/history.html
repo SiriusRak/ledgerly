@@ -3,17 +3,12 @@
 {% block content %}
 {% from "macros/icons.html" import icon %}
 
-<div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
   <div>
     <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Invoice history</h1>
-    {% if filter_supplier_name %}
     <p class="text-xs sm:text-sm mt-1" style="color: var(--color-text-secondary);">
-      Filtered by <span class="font-medium" style="color: var(--color-text-primary);">{{ filter_supplier_name }}</span>
-      <a href="/history" class="ml-2 text-xs underline" style="color: var(--color-accent);">Clear</a>
+      {{ invoices | length }} invoice{{ 's' if invoices | length != 1 else '' }}
     </p>
-    {% else %}
-    <p class="text-xs sm:text-sm mt-1" style="color: var(--color-text-secondary);">All validated invoices</p>
-    {% endif %}
   </div>
 
   <div class="grid grid-cols-2 sm:flex sm:items-center gap-2">
@@ -40,6 +35,35 @@
     </a>
   </div>
 </div>
+
+{# ── Filter bar ── #}
+<form method="get" action="/history" class="card px-3 py-3 sm:px-4 sm:py-3 mb-4 sm:mb-6">
+  <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+    <select name="month" class="input-field text-xs sm:text-sm" onchange="this.form.submit()">
+      <option value="">All months</option>
+      {% for m in all_months %}
+      <option value="{{ m }}" {% if filter_month == m %}selected{% endif %}>{{ m }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="supplier_id" class="input-field text-xs sm:text-sm" onchange="this.form.submit()">
+      <option value="">All suppliers</option>
+      {% for s in all_suppliers %}
+      <option value="{{ s.id }}" {% if supplier_id == s.id %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="classification" class="input-field text-xs sm:text-sm" onchange="this.form.submit()">
+      <option value="">All status</option>
+      <option value="auto" {% if filter_classification == 'auto' %}selected{% endif %}>Auto</option>
+      <option value="manual" {% if filter_classification == 'manual' %}selected{% endif %}>Manual</option>
+    </select>
+
+    {% if filter_month or supplier_id or filter_classification %}
+    <a href="/history" class="text-xs underline whitespace-nowrap" style="color: var(--color-accent);">{{ icon("x-circle", "w-3.5 h-3.5 inline") }} Clear filters</a>
+    {% endif %}
+  </div>
+</form>
 
 {% if invoices %}
 {# Mobile: card list. Desktop: table #}

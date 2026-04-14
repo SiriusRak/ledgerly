@@ -3,12 +3,13 @@
 import re
 
 from fastapi import APIRouter, Query, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 
 from app.db import get_supabase
 from app.exporters.sage_xlsx import build_xlsx
 from app.exporters.enriched_csv import build_csv
+from app.jobs.weekly_recap import send_weekly_recap
 from app.services.storage import signed_url
 
 router = APIRouter()
@@ -19,20 +20,46 @@ templates = Jinja2Templates(directory="app/templates")
 async def history_page(
     request: Request,
     supplier_id: str | None = Query(None),
+    month: str | None = Query(None),
+    classification: str | None = Query(None),
 ):
     sb = get_supabase()
-    q = (
+
+    # Fetch ALL done invoices first (unfiltered) to build filter options
+    all_invoices = (
         sb.table("invoices")
         .select("*, suppliers(id, name), clients(id, code, name)")
         .eq("state", "done")
         .order("invoice_date", desc=True)
+        .execute()
+    ).data or []
+
+    # Build distinct months from ALL invoices (for filter dropdown)
+    all_months: list[str] = sorted(
+        {inv["invoice_date"][:7] for inv in all_invoices if inv.get("invoice_date")},
+        reverse=True,
     )
+
+    # Build distinct suppliers from ALL invoices (for filter dropdown)
+    all_suppliers: list[dict] = []
+    seen_sup_ids: set[str] = set()
+    for inv in all_invoices:
+        sup = inv.get("suppliers")
+        if sup and isinstance(sup, dict) and sup.get("id") and sup["id"] not in seen_sup_ids:
+            seen_sup_ids.add(sup["id"])
+            all_suppliers.append({"id": sup["id"], "name": sup.get("name", "")})
+    all_suppliers.sort(key=lambda s: (s["name"] or "").lower())
+
+    # Apply filters
+    invoices = all_invoices
     if supplier_id:
-        q = q.eq("supplier_id", supplier_id)
+        invoices = [inv for inv in invoices if inv.get("supplier_id") == supplier_id]
+    if month and re.match(r"^\d{4}-\d{2}$", month):
+        invoices = [inv for inv in invoices if inv.get("invoice_date", "").startswith(month)]
+    if classification in ("auto", "manual"):
+        invoices = [inv for inv in invoices if inv.get("classification") == classification]
 
-    invoices = (q.execute()).data or []
-
-    # Build distinct months for export selector (newest first)
+    # Build export months from filtered results
     months: list[str] = sorted(
         {inv["invoice_date"][:7] for inv in invoices if inv.get("invoice_date")},
         reverse=True,
@@ -43,10 +70,11 @@ async def history_page(
 
     # Supplier name for filter display
     filter_supplier_name = None
-    if supplier_id and invoices:
-        sup = invoices[0].get("suppliers")
-        if sup and isinstance(sup, dict):
-            filter_supplier_name = sup.get("name")
+    if supplier_id:
+        for s in all_suppliers:
+            if s["id"] == supplier_id:
+                filter_supplier_name = s["name"]
+                break
 
     return templates.TemplateResponse(
         name="history.html", request=request, context={
@@ -56,6 +84,10 @@ async def history_page(
             "clients": clients,
             "supplier_id": supplier_id,
             "filter_supplier_name": filter_supplier_name,
+            "all_months": all_months,
+            "all_suppliers": all_suppliers,
+            "filter_month": month or "",
+            "filter_classification": classification or "",
         },
     )
 
