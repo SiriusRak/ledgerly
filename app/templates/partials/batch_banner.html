@@ -4,7 +4,7 @@
      hx-get="/batch/status" hx-trigger="every 3s" hx-swap="outerHTML"
      {% endif %}>
   {% if processing_count > 0 %}
-  <div class="mt-4 flex items-center gap-2 text-sm text-indigo-600 bg-indigo-50 rounded-lg px-4 py-2">
+  <div class="mt-4 flex items-center gap-2 text-sm font-medium px-4 py-2.5 rounded" style="background: var(--color-accent-light); color: var(--color-accent);">
     {{ icon("loader", "w-4 h-4 animate-spin") }}
     <span>{{ processing_count }} invoice{{ "s" if processing_count > 1 else "" }} processing...</span>
   </div>

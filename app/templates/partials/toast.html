@@ -1,14 +1,16 @@
 {% from "macros/icons.html" import icon %}
 <div id="toast" hx-swap-oob="true"
-     class="fixed bottom-6 right-6 bg-white border border-gray-200 shadow-lg rounded-lg px-4 py-3 flex items-center gap-3 text-sm max-w-md animate-fade-in">
-  {{ icon("check-circle", "w-5 h-5 text-green-500 shrink-0") }}
+     class="fixed bottom-6 right-6 card shadow-lg px-4 py-3 flex items-center gap-3 text-sm max-w-md animate-fade-in-up">
+  <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background: #dcfce7;">
+    {{ icon("check-circle", "w-4 h-4 text-green-600") }}
+  </div>
   <div>
-    <p class="font-medium text-gray-800">Batch complete</p>
+    <p class="font-medium" style="color: var(--color-text-primary);">Batch complete</p>
     {% if paths %}
-    <p class="text-xs text-gray-500 mt-0.5">{{ paths | length }} file{{ "s" if paths | length > 1 else "" }} stored</p>
+    <p class="text-xs mt-0.5" style="color: var(--color-text-muted);">{{ paths | length }} file{{ "s" if paths | length > 1 else "" }} stored</p>
     {% endif %}
   </div>
-  <button onclick="this.parentElement.remove()" class="ml-auto text-gray-400 hover:text-gray-600">
+  <button onclick="this.parentElement.remove()" class="ml-auto" style="color: var(--color-text-muted);">
     {{ icon("x-circle", "w-4 h-4") }}
   </button>
 </div>

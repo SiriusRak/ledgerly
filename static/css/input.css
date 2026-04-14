@@ -1,3 +1,133 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@layer base {
+  :root {
+    --color-surface: #f8f9fa;
+    --color-surface-raised: #ffffff;
+    --color-surface-sunken: #f1f3f5;
+    --color-nav: #1a1d23;
+    --color-nav-text: #a1a7b3;
+    --color-nav-active: #ffffff;
+    --color-accent: #0d9488;
+    --color-accent-light: #ccfbf1;
+    --color-accent-hover: #0f766e;
+    --color-text-primary: #111827;
+    --color-text-secondary: #6b7280;
+    --color-text-muted: #9ca3af;
+    --color-border: #e5e7eb;
+    --color-border-strong: #d1d5db;
+  }
+
+  body {
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3 {
+    letter-spacing: -0.025em;
+  }
+}
+
+@layer components {
+  .nav-link {
+    @apply flex items-center gap-2 px-3 py-1.5 rounded text-sm font-medium transition-colors;
+    color: var(--color-nav-text);
+  }
+  .nav-link:hover {
+    color: var(--color-nav-active);
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .nav-link.active {
+    color: var(--color-nav-active);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .card {
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded;
+  }
+  .badge-teal {
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+  }
+  .badge-amber {
+    @apply bg-amber-50 text-amber-700;
+  }
+  .badge-red {
+    @apply bg-red-50 text-red-700;
+  }
+  .badge-blue {
+    @apply bg-sky-50 text-sky-700;
+  }
+  .badge-gray {
+    @apply bg-gray-100 text-gray-600;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded transition-colors;
+    background: var(--color-accent);
+    color: white;
+  }
+  .btn-primary:hover {
+    background: var(--color-accent-hover);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded transition-colors;
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border-strong);
+    color: var(--color-text-primary);
+  }
+  .btn-secondary:hover {
+    background: var(--color-surface-sunken);
+  }
+
+  .input-field {
+    @apply w-full text-sm px-3 py-2 rounded transition-colors;
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+  }
+  .input-field:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.15);
+  }
+
+  .table-header {
+    @apply text-xs font-semibold uppercase tracking-wider;
+    color: var(--color-text-muted);
+  }
+
+  .mono {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.3s ease-out;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .animate-pulse-dot {
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+}

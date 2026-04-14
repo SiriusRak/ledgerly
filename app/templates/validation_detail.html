@@ -1,75 +1,70 @@
 {% extends "base.html" %}
-{% block title %}Validation -- {{ invoice.supplier_name_raw or 'Facture' }} -- Ledgerly{% endblock %}
+{% block title %}Validation -- {{ invoice.supplier_name_raw or 'Invoice' }} -- Ledgerly{% endblock %}
 {% block content %}
 {% from "macros/icons.html" import icon %}
 
 {# Reason banner #}
 {% set reason = invoice.state_reason|lower if invoice.state_reason else '' %}
 {% if 'duplicate' in reason %}
-<div class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2 text-red-700 text-sm font-medium">
+<div class="card mb-5 px-4 py-3 flex items-center gap-2 text-sm font-medium" style="border-left: 3px solid #ef4444; background: #fef2f2; color: #b91c1c;">
   {{ icon("copy", "w-4 h-4") }} {{ invoice.state_reason }}
 </div>
 {% elif 'vat' in reason or 'tva' in reason %}
-<div class="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-center gap-2 text-amber-700 text-sm font-medium">
+<div class="card mb-5 px-4 py-3 flex items-center gap-2 text-sm font-medium" style="border-left: 3px solid #f59e0b; background: #fffbeb; color: #92400e;">
   {{ icon("alert-triangle", "w-4 h-4") }} {{ invoice.state_reason }}
 </div>
 {% elif 'new supplier' in reason or 'nouveau' in reason %}
-<div class="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-center gap-2 text-blue-700 text-sm font-medium">
+<div class="card mb-5 px-4 py-3 flex items-center gap-2 text-sm font-medium" style="border-left: 3px solid var(--color-accent); background: var(--color-accent-light); color: var(--color-accent-hover);">
   {{ icon("users", "w-4 h-4") }} {{ invoice.state_reason }}
 </div>
 {% elif invoice.state_reason %}
-<div class="mb-4 p-3 rounded-lg bg-gray-50 border border-gray-200 flex items-center gap-2 text-gray-700 text-sm font-medium">
+<div class="card mb-5 px-4 py-3 flex items-center gap-2 text-sm font-medium" style="border-left: 3px solid var(--color-border-strong);">
   {{ icon("alert-triangle", "w-4 h-4") }} {{ invoice.state_reason }}
 </div>
 {% endif %}
 
 {# Supplier header #}
-<div class="mb-4">
-  <h1 class="text-xl font-bold text-gray-900">{{ invoice.supplier_name_raw or 'Fournisseur inconnu' }}</h1>
+<div class="mb-5 flex items-baseline gap-3">
+  <h1 class="text-xl font-bold tracking-tight">{{ invoice.supplier_name_raw or 'Unknown supplier' }}</h1>
   {% if invoice.siret %}
-  <span class="text-sm text-gray-500">SIRET : {{ invoice.siret }}</span>
+  <span class="mono text-xs" style="color: var(--color-text-muted);">SIRET {{ invoice.siret }}</span>
   {% endif %}
 </div>
 
 {# Split pane #}
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6" style="min-height: 70vh;">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-5" style="min-height: 72vh;">
 
   {# Left: PDF viewer #}
-  <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+  <div class="card overflow-hidden">
     {% if pdf_url %}
-    <iframe src="{{ pdf_url }}" class="w-full h-full min-h-[70vh]" title="Apercu facture"></iframe>
+    <iframe src="{{ pdf_url }}" class="w-full h-full min-h-[72vh]" title="Invoice preview"></iframe>
     {% else %}
-    <div class="flex items-center justify-center h-full text-gray-400 text-sm">
-      PDF non disponible
+    <div class="flex items-center justify-center h-full" style="color: var(--color-text-muted);">
+      <span class="text-sm">PDF not available</span>
     </div>
     {% endif %}
   </div>
 
   {# Right: Form #}
-  <div class="bg-white border border-gray-200 rounded-lg p-6 overflow-y-auto">
+  <div class="card p-5 overflow-y-auto">
     <form method="POST" action="/queue/{{ invoice.id }}/validate" id="validate-form">
       <div class="space-y-4">
 
-        {# Date #}
-        <div>
-          <label for="invoice_date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-          <input type="text" id="invoice_date" name="invoice_date" value="{{ display_date }}"
-                 pattern="\d{2}/\d{2}/\d{4}" placeholder="JJ/MM/AAAA"
-                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="invoice_date" class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--color-text-muted);">Date</label>
+            <input type="text" id="invoice_date" name="invoice_date" value="{{ display_date }}"
+                   pattern="\d{2}/\d{2}/\d{4}" placeholder="JJ/MM/AAAA" class="input-field">
+          </div>
+          <div>
+            <label for="journal" class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--color-text-muted);">Journal</label>
+            <input type="text" id="journal" name="journal" value="{{ invoice.journal or 'HA' }}" class="input-field">
+          </div>
         </div>
 
-        {# Journal #}
         <div>
-          <label for="journal" class="block text-sm font-medium text-gray-700 mb-1">Journal</label>
-          <input type="text" id="journal" name="journal" value="{{ invoice.journal or 'HA' }}"
-                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border">
-        </div>
-
-        {# Compte #}
-        <div>
-          <label for="compte" class="block text-sm font-medium text-gray-700 mb-1">Compte</label>
-          <input type="text" id="compte" name="compte" list="comptes-pcg" value="{{ invoice.compte or '' }}"
-                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border">
+          <label for="compte" class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--color-text-muted);">Compte</label>
+          <input type="text" id="compte" name="compte" list="comptes-pcg" value="{{ invoice.compte or '' }}" class="input-field">
           <datalist id="comptes-pcg">
             <option value="401">401 - Fournisseurs</option>
             <option value="44566">44566 - TVA deductible</option>
@@ -90,85 +85,69 @@
           </datalist>
         </div>
 
-        {# Libelle #}
         <div>
-          <label for="libelle" class="block text-sm font-medium text-gray-700 mb-1">Libelle</label>
-          <input type="text" id="libelle" name="libelle" value="{{ invoice.libelle or '' }}"
-                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border">
+          <label for="libelle" class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--color-text-muted);">Libelle</label>
+          <input type="text" id="libelle" name="libelle" value="{{ invoice.libelle or '' }}" class="input-field">
         </div>
 
-        {# Amounts row #}
         <div class="grid grid-cols-3 gap-3">
           <div>
-            <label for="amount_ht" class="block text-sm font-medium text-gray-700 mb-1">Montant HT</label>
-            <input type="text" id="amount_ht" name="amount_ht" value="{{ invoice.amount_ht if invoice.amount_ht is not none else '' }}"
-                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border amount-field">
+            <label for="amount_ht" class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--color-text-muted);">HT</label>
+            <input type="text" id="amount_ht" name="amount_ht" value="{{ invoice.amount_ht if invoice.amount_ht is not none else '' }}" class="input-field mono amount-field">
           </div>
           <div>
-            <label for="amount_tva" class="block text-sm font-medium text-gray-700 mb-1">TVA</label>
-            <input type="text" id="amount_tva" name="amount_tva" value="{{ invoice.amount_tva if invoice.amount_tva is not none else '' }}"
-                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border amount-field">
+            <label for="amount_tva" class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--color-text-muted);">TVA</label>
+            <input type="text" id="amount_tva" name="amount_tva" value="{{ invoice.amount_tva if invoice.amount_tva is not none else '' }}" class="input-field mono amount-field">
           </div>
           <div>
-            <label for="amount_ttc" class="block text-sm font-medium text-gray-700 mb-1">Montant TTC</label>
-            <input type="text" id="amount_ttc" name="amount_ttc" value="{{ invoice.amount_ttc if invoice.amount_ttc is not none else '' }}"
-                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border amount-field">
+            <label for="amount_ttc" class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--color-text-muted);">TTC</label>
+            <input type="text" id="amount_ttc" name="amount_ttc" value="{{ invoice.amount_ttc if invoice.amount_ttc is not none else '' }}" class="input-field mono amount-field">
           </div>
         </div>
 
-        {# TVA rate #}
-        <div>
-          <label for="tva_rate" class="block text-sm font-medium text-gray-700 mb-1">Taux TVA (%)</label>
-          <input type="text" id="tva_rate" name="tva_rate" value="{{ invoice.tva_rate if invoice.tva_rate is not none else '' }}"
-                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="tva_rate" class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--color-text-muted);">Taux TVA (%)</label>
+            <input type="text" id="tva_rate" name="tva_rate" value="{{ invoice.tva_rate if invoice.tva_rate is not none else '' }}" class="input-field mono">
+          </div>
+          <div>
+            <label for="invoice_number" class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--color-text-muted);">N. piece</label>
+            <input type="text" id="invoice_number" name="invoice_number" value="{{ invoice.invoice_number or '' }}" class="input-field mono">
+          </div>
         </div>
 
-        {# N piece #}
         <div>
-          <label for="invoice_number" class="block text-sm font-medium text-gray-700 mb-1">N. piece</label>
-          <input type="text" id="invoice_number" name="invoice_number" value="{{ invoice.invoice_number or '' }}"
-                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border">
-        </div>
-
-        {# Dossier client #}
-        <div>
-          <label for="dossier_client_id" class="block text-sm font-medium text-gray-700 mb-1">Dossier client</label>
+          <label for="dossier_client_id" class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--color-text-muted);">Dossier client</label>
           <div id="client-select-wrapper">
-            <select id="dossier_client_id" name="dossier_client_id"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border"
+            <select id="dossier_client_id" name="dossier_client_id" class="input-field"
                     hx-on:change="if(this.value==='__new__'){htmx.ajax('GET','/clients/new-inline','#client-select-wrapper')}">
-              <option value="">-- Selectionner --</option>
+              <option value="">-- Select --</option>
               {% for c in clients %}
               <option value="{{ c.id }}" {% if invoice.dossier_client_id == c.id %}selected{% endif %}>{{ c.name }}</option>
               {% endfor %}
-              <option value="__new__">+ Nouveau client</option>
+              <option value="__new__">+ New client</option>
             </select>
           </div>
         </div>
 
-        <hr class="border-gray-200">
+        <div class="pt-1" style="border-top: 1px solid var(--color-border);"></div>
 
-        {# Supplier name (editable) #}
-        <div>
-          <label for="supplier_name" class="block text-sm font-medium text-gray-700 mb-1">Nom fournisseur</label>
-          <input type="text" id="supplier_name" name="supplier_name"
-                 value="{{ invoice.supplier_name_raw or (supplier.name if supplier else '') }}"
-                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="supplier_name" class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--color-text-muted);">Supplier name</label>
+            <input type="text" id="supplier_name" name="supplier_name"
+                   value="{{ invoice.supplier_name_raw or (supplier.name if supplier else '') }}" class="input-field">
+          </div>
+          <div>
+            <label for="siret" class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--color-text-muted);">SIRET</label>
+            <input type="text" id="siret" name="siret"
+                   value="{{ invoice.siret or (supplier.siret if supplier else '') }}" class="input-field mono">
+          </div>
         </div>
 
-        {# SIRET (editable) #}
-        <div>
-          <label for="siret" class="block text-sm font-medium text-gray-700 mb-1">SIRET</label>
-          <input type="text" id="siret" name="siret"
-                 value="{{ invoice.siret or (supplier.siret if supplier else '') }}"
-                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border">
-        </div>
-
-        {# Submit #}
         <div class="pt-2">
-          <button type="submit"
-                  class="w-full bg-indigo-600 text-white rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2">
-            {{ icon("check-circle", "w-4 h-4") }} Valider
+          <button type="submit" class="btn-primary w-full py-2.5">
+            {{ icon("check-circle", "w-4 h-4") }} Validate
           </button>
         </div>
       </div>
@@ -177,26 +156,20 @@
 </div>
 
 {# Shortcut hint bar #}
-<div class="fixed bottom-0 left-0 right-0 bg-gray-800 text-gray-300 text-xs py-2 px-6 flex items-center justify-center gap-6">
-  <span><kbd class="px-1.5 py-0.5 bg-gray-700 rounded text-gray-200 font-mono">Enter</kbd> Valider</span>
-  <span><kbd class="px-1.5 py-0.5 bg-gray-700 rounded text-gray-200 font-mono">Esc</kbd> Retour a la liste</span>
+<div class="fixed bottom-0 left-0 right-0 py-2 px-6 flex items-center justify-center gap-6 text-xs" style="background: var(--color-nav); color: var(--color-nav-text);">
+  <span><kbd class="px-1.5 py-0.5 rounded text-xs mono" style="background: rgba(255,255,255,0.1); color: #e5e7eb;">Enter</kbd> Validate</span>
+  <span><kbd class="px-1.5 py-0.5 rounded text-xs mono" style="background: rgba(255,255,255,0.1); color: #e5e7eb;">Esc</kbd> Back to queue</span>
 </div>
 
 <script>
-// Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    window.location.href = '/queue';
-  }
+  if (e.key === 'Escape') window.location.href = '/queue';
 });
-
-// Amount normalization: French format on blur, raw on focus
 document.querySelectorAll('.amount-field').forEach(function(el) {
   el.addEventListener('blur', function() {
     var v = this.value.replace(/\s/g, '').replace(/\u202f/g, '').replace(/\u00a0/g, '').replace(',', '.');
     var n = parseFloat(v);
     if (!isNaN(n)) {
-      // Display French format
       var parts = n.toFixed(2).split('.');
       parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
       this.value = parts[0] + ',' + parts[1];
@@ -205,9 +178,7 @@ document.querySelectorAll('.amount-field').forEach(function(el) {
   el.addEventListener('focus', function() {
     var v = this.value.replace(/\s/g, '').replace(/\u202f/g, '').replace(/\u00a0/g, '').replace(',', '.');
     var n = parseFloat(v);
-    if (!isNaN(n)) {
-      this.value = n.toFixed(2);
-    }
+    if (!isNaN(n)) this.value = n.toFixed(2);
   });
 });
 </script>

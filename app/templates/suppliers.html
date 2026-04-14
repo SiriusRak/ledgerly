@@ -3,40 +3,45 @@
 {% block content %}
 {% from "macros/icons.html" import icon %}
 
-<h1 class="text-2xl font-bold mb-6">Known Suppliers</h1>
+<div class="mb-8">
+  <h1 class="text-2xl font-bold tracking-tight">Known Suppliers</h1>
+  <p class="text-sm mt-1" style="color: var(--color-text-secondary);">Learned from validated invoices</p>
+</div>
 
 {% if suppliers %}
-<div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+<div class="card overflow-hidden">
   <table class="w-full text-sm">
-    <thead class="bg-gray-50 border-b border-gray-200">
-      <tr>
-        <th class="text-left px-4 py-3 font-medium text-gray-600">Supplier</th>
-        <th class="text-left px-4 py-3 font-medium text-gray-600">SIRET</th>
-        <th class="text-left px-4 py-3 font-medium text-gray-600">Default compte</th>
-        <th class="text-left px-4 py-3 font-medium text-gray-600">Default dossier</th>
-        <th class="text-right px-4 py-3 font-medium text-gray-600">Invoices</th>
-        <th class="text-left px-4 py-3 font-medium text-gray-600">Last seen</th>
+    <thead>
+      <tr style="background: var(--color-surface-sunken); border-bottom: 1px solid var(--color-border);">
+        <th class="table-header text-left px-4 py-3">Supplier</th>
+        <th class="table-header text-left px-4 py-3">SIRET</th>
+        <th class="table-header text-left px-4 py-3">Default compte</th>
+        <th class="table-header text-left px-4 py-3">Default dossier</th>
+        <th class="table-header text-right px-4 py-3">Invoices</th>
+        <th class="table-header text-left px-4 py-3">Last seen</th>
       </tr>
     </thead>
-    <tbody class="divide-y divide-gray-100">
+    <tbody>
       {% for s in suppliers %}
-      <tr class="hover:bg-gray-50">
-        <td class="px-4 py-3 font-medium text-gray-900">{{ s.name }}</td>
-        <td class="px-4 py-3 text-gray-500 font-mono text-xs">{{ s.siret or '-' }}</td>
-        <td class="px-4 py-3 text-gray-700">{{ s.default_compte or '-' }}</td>
-        <td class="px-4 py-3 text-gray-700">{{ s.clients.name if s.clients else '-' }}</td>
-        <td class="px-4 py-3 text-right text-gray-700">{{ s.invoices_count }}</td>
-        <td class="px-4 py-3 text-gray-500 text-xs">{{ s.last_seen[:10] if s.last_seen else '-' }}</td>
+      <tr style="border-bottom: 1px solid var(--color-border);" class="hover:bg-gray-50 transition-colors">
+        <td class="px-4 py-3 font-medium" style="color: var(--color-text-primary);">{{ s.name }}</td>
+        <td class="px-4 py-3 mono text-xs" style="color: var(--color-text-muted);">{{ s.siret or '-' }}</td>
+        <td class="px-4 py-3 mono text-xs">{{ s.default_compte or '-' }}</td>
+        <td class="px-4 py-3 text-xs">{{ s.clients.name if s.clients else '-' }}</td>
+        <td class="px-4 py-3 text-right mono font-medium">{{ s.invoices_count }}</td>
+        <td class="px-4 py-3 mono text-xs" style="color: var(--color-text-muted);">{{ s.last_seen[:10] if s.last_seen else '-' }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
 {% else %}
-<div class="text-center py-16">
-  <div class="text-gray-400 mb-3">{{ icon("users", "w-12 h-12 mx-auto") }}</div>
-  <p class="text-gray-500 text-lg">No suppliers learned yet</p>
-  <p class="text-sm text-gray-400 mt-1">Suppliers are learned automatically when invoices are processed</p>
+<div class="text-center py-20">
+  <div class="w-16 h-16 rounded-xl mx-auto flex items-center justify-center mb-4" style="background: var(--color-surface-sunken);">
+    {{ icon("users", "w-7 h-7") }}
+  </div>
+  <p class="text-lg font-medium" style="color: var(--color-text-primary);">No suppliers learned yet</p>
+  <p class="text-sm mt-1" style="color: var(--color-text-muted);">Suppliers are learned automatically when invoices are processed</p>
 </div>
 {% endif %}
 

@@ -7,33 +7,40 @@
   <link rel="stylesheet" href="/static/css/dist.css">
   <script src="/static/js/htmx.min.js" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
   {% from "macros/icons.html" import icon %}
-  <nav class="bg-white border-b border-gray-200 px-6 py-3">
-    <div class="max-w-5xl mx-auto flex items-center justify-between">
-      <a href="/" class="text-lg font-bold text-indigo-600">Ledgerly</a>
-      <div class="flex gap-6 text-sm font-medium">
-        <a href="/upload" class="flex items-center gap-1.5 hover:text-indigo-600 {% if active_tab == 'upload' %}text-indigo-600{% else %}text-gray-600{% endif %}">
+
+  {# Dark nav bar #}
+  <nav style="background: var(--color-nav);">
+    <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-2.5">
+      <a href="/" class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded flex items-center justify-center" style="background: var(--color-accent);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        </div>
+        <span class="text-sm font-semibold text-white tracking-tight">Ledgerly</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <a href="/upload" class="nav-link {% if active_tab == 'upload' %}active{% endif %}">
           {{ icon("upload", "w-4 h-4") }} Upload
         </a>
-        <a href="/queue" class="flex items-center gap-1.5 hover:text-indigo-600 {% if active_tab == 'queue' %}text-indigo-600{% else %}text-gray-600{% endif %}">
+        <a href="/queue" class="nav-link {% if active_tab == 'queue' %}active{% endif %}">
           {{ icon("inbox", "w-4 h-4") }} Queue
         </a>
-        <a href="/history" class="flex items-center gap-1.5 hover:text-indigo-600 {% if active_tab == 'history' %}text-indigo-600{% else %}text-gray-600{% endif %}">
+        <a href="/history" class="nav-link {% if active_tab == 'history' %}active{% endif %}">
           {{ icon("book-open", "w-4 h-4") }} History
         </a>
-        <a href="/suppliers" class="flex items-center gap-1.5 hover:text-indigo-600 {% if active_tab == 'suppliers' %}text-indigo-600{% else %}text-gray-600{% endif %}">
+        <a href="/suppliers" class="nav-link {% if active_tab == 'suppliers' %}active{% endif %}">
           {{ icon("users", "w-4 h-4") }} Suppliers
         </a>
       </div>
     </div>
   </nav>
 
-  <main class="flex-1 max-w-5xl mx-auto w-full px-6 py-8">
+  <main class="flex-1 max-w-6xl mx-auto w-full px-6 py-8">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="text-center text-xs text-gray-400 py-4">
+  <footer class="text-center text-xs py-4" style="color: var(--color-text-muted);">
     Ledgerly -- Invoice processing for accountants
   </footer>
 </body>
