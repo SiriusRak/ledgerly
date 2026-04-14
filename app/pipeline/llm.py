@@ -1,7 +1,6 @@
 """LLM field extraction via Groq JSON mode, Gemini fallback."""
 
 import json
-import signal
 from typing import Optional
 
 from pydantic import BaseModel, field_validator
@@ -59,41 +58,29 @@ class InvoiceFields(BaseModel):
         return str(v).strip() or None
 
 
-class _TimeoutError(Exception):
-    pass
-
-
-def _timeout_handler(signum, frame):
-    raise _TimeoutError("Groq request exceeded 15s timeout")
-
-
 def extract_fields(text: str) -> dict:
     """Extract invoice fields from text using Groq LLM. Returns validated dict."""
     try:
         return _call_groq(text)
-    except (RateLimitError, _TimeoutError):
-        return _call_gemini_fallback(text)
+    except (RateLimitError, TimeoutError, Exception) as e:
+        if isinstance(e, RateLimitError) or "timeout" in str(e).lower():
+            return _call_gemini_fallback(text)
+        raise
 
 
 def _call_groq(text: str) -> dict:
-    """Call Groq API with timeout."""
-    client = Groq(api_key=settings.groq_api_key)
+    """Call Groq API with timeout via client setting."""
+    client = Groq(api_key=settings.groq_api_key, timeout=TIMEOUT_SECONDS)
 
-    old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
-    signal.alarm(TIMEOUT_SECONDS)
-    try:
-        response = client.chat.completions.create(
-            model=MODEL,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": text},
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.1,
-        )
-    finally:
-        signal.alarm(0)
-        signal.signal(signal.SIGALRM, old_handler)
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": text},
+        ],
+        response_format={"type": "json_object"},
+        temperature=0.1,
+    )
 
     raw = json.loads(response.choices[0].message.content)
     validated = InvoiceFields(**raw)

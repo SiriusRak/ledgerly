@@ -39,19 +39,11 @@
   {% endfor %}
 </div>
 
-<form id="upload-form" class="hidden"
-      hx-post="/upload"
-      hx-target="#batch-rows"
-      hx-swap="afterbegin"
-      hx-encoding="multipart/form-data">
-</form>
-
 <script>
 (function() {
   var dropzone = document.getElementById('dropzone');
   var fileInput = document.getElementById('file-input');
   var errorDiv = document.getElementById('upload-error');
-  var form = document.getElementById('upload-form');
 
   function showError(msg) {
     errorDiv.textContent = msg;
@@ -59,7 +51,7 @@
     setTimeout(function() { errorDiv.classList.add('hidden'); }, 5000);
   }
 
-  function handleFiles(files) {
+  function validateAndUpload(files) {
     errorDiv.classList.add('hidden');
     if (files.length > 5) return showError('Maximum 5 files allowed.');
     for (var i = 0; i < files.length; i++) {
@@ -69,15 +61,27 @@
     }
     var fd = new FormData();
     for (var j = 0; j < files.length; j++) fd.append('files', files[j]);
-    htmx.ajax('POST', '/upload', {target: '#batch-rows', swap: 'afterbegin', values: fd});
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/upload');
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        var target = document.getElementById('batch-rows');
+        target.insertAdjacentHTML('afterbegin', xhr.responseText);
+        htmx.process(target);
+      } else {
+        showError('Upload failed (' + xhr.status + ')');
+      }
+    };
+    xhr.onerror = function() { showError('Network error'); };
+    xhr.send(fd);
   }
 
-  fileInput.addEventListener('change', function() { if (this.files.length) handleFiles(this.files); this.value = ''; });
+  fileInput.addEventListener('change', function() { if (this.files.length) validateAndUpload(this.files); this.value = ''; });
   dropzone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('border-indigo-400', 'bg-indigo-50'); });
   dropzone.addEventListener('dragleave', function() { this.classList.remove('border-indigo-400', 'bg-indigo-50'); });
   dropzone.addEventListener('drop', function(e) {
     e.preventDefault(); this.classList.remove('border-indigo-400', 'bg-indigo-50');
-    handleFiles(e.dataTransfer.files);
+    validateAndUpload(e.dataTransfer.files);
   });
 })();
 </script>

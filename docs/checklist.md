@@ -40,7 +40,7 @@
   Acceptance: drop 1 PDF → row apparaît "Extracting…" → passe à "Auto-classified" (si supplier connu) ou "To review" (si nouveau) en <30s ; polling s'arrête automatiquement ; toast avec chemin storage affiché. Drop 6 PDFs rejeté côté client avec message.
   Verify: Ouvrir `/upload`, drop 3 PDFs demo réels → observer les rows passer de loader à check-circle/alert-triangle sans refresh manuel, toast visible en fin de batch.
 
-- [ ] **6. Validation queue — liste + détail split-pane + RPC validate**
+- [x] **6. Validation queue — liste + détail split-pane + RPC validate**
   Spec ref: `spec.md > Routes > validation.py`, `prd.md > Epic 2`
   What to build: `app/routes/validation.py` (GET /queue trié duplicate>VAT>new supplier puis FIFO ; GET /queue/{id} split-pane ; POST /queue/{id}/validate → RPC `validate_invoice` → 303 next_id ou /queue ; GET /clients/new-inline + POST /clients swap option). Templates : `validation_queue.html` (cards + reason badge), `validation_detail.html` (iframe PDF signed URL + form Sage fields : Date JJ/MM/AAAA, Journal, Compte `<input list="comptes-pcg">` + `<datalist>` ~30 codes PCG hardcodés, Libellé, Débit/Crédit, N°pièce, Dossier client `<select>` + option "__new__" → HTMX swap). Scripts inline : Enter=submit, Esc=/queue, handler `input[data-type="amount"]` normalise `1 234,56`↔`1234.56`.
   Acceptance: Queue liste les invoices à reviewer avec reason affichée. Détail charge avec PDF visible à gauche, form pré-rempli à droite. Enter valide et auto-advance au suivant. RPC met à jour invoice + supplier + déplace le PDF à `/{supplier}/YYYY-MM_{supplier}_{amount}.pdf`.
