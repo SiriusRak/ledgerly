@@ -1,0 +1,6 @@
+<form hx-post="/clients" hx-target="#client-select-wrapper" hx-swap="innerHTML" class="flex gap-2">
+  <input type="text" name="name" placeholder="Nom du client" required autofocus
+         class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm px-3 py-2 border">
+  <button type="submit" class="bg-indigo-600 text-white rounded-md px-3 py-2 text-sm font-medium hover:bg-indigo-700">OK</button>
+  <button type="button" onclick="window.location.reload()" class="text-gray-500 hover:text-gray-700 text-sm px-2">Annuler</button>
+</form>

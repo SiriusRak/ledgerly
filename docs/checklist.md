@@ -34,7 +34,7 @@
   Acceptance: 100% des unit tests passent ; matcher trouve "EDF SA" == "edf", "E.D.F." == "edf" ; confidence retourne les 4 classes correctement selon fixtures.
   Verify: `pytest tests/test_matcher.py tests/test_duplicate.py tests/test_confidence.py -v` → tout vert.
 
-- [ ] **5. Upload UI + orchestrator BackgroundTask + polling HTMX**
+- [x] **5. Upload UI + orchestrator BackgroundTask + polling HTMX**
   Spec ref: `spec.md > Routes > upload.py`, `spec.md > Pipeline > orchestrator.py`, `prd.md > Epic 1`
   What to build: `app/services/storage.py` (wrapper Supabase Storage : `put_inbox`, `move_to_supplier`, `signed_url`). `app/services/supplier_memory.py` (upsert + bump). `app/pipeline/orchestrator.py` (chaîne extractor→llm→matcher→duplicate→confidence→storage.move, try/except global → state='error'). `app/routes/upload.py` (POST /upload multipart ≤5, insert pending, upload _inbox, BackgroundTask, return partial ; GET /invoices/{id}/status ; GET /batch/status ; POST /invoices/{id}/retry). Templates : `upload.html` (drop zone + JS vanilla 15 lignes client-side validation ≤5 + PDF only), `partials/batch_row.html` (hx-trigger="every 2s" conditionnel auto-stop), `partials/batch_rows.html`, `partials/batch_banner.html`, `partials/status_badge.html`, `partials/toast.html` OOB post-batch. Statuts avec Lucide icons (loader/check-circle/alert-triangle/copy/x-circle).
   Acceptance: drop 1 PDF → row apparaît "Extracting…" → passe à "Auto-classified" (si supplier connu) ou "To review" (si nouveau) en <30s ; polling s'arrête automatiquement ; toast avec chemin storage affiché. Drop 6 PDFs rejeté côté client avec message.
