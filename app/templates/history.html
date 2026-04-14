@@ -47,12 +47,12 @@
   <table class="min-w-full text-sm whitespace-nowrap">
     <thead>
       <tr style="background: var(--color-surface-sunken); border-bottom: 1px solid var(--color-border);">
-        <th class="table-header px-4 py-3 text-left">Date</th>
-        <th class="table-header px-4 py-3 text-left">Supplier</th>
-        <th class="table-header px-4 py-3 text-right">Amount TTC</th>
-        <th class="table-header px-4 py-3 text-left">Compte</th>
+        <th class="table-header px-4 py-3 text-left sortable-header" data-sort="date" style="cursor:pointer;user-select:none;">Date <span class="sort-arrow"></span></th>
+        <th class="table-header px-4 py-3 text-left sortable-header" data-sort="supplier" style="cursor:pointer;user-select:none;">Supplier <span class="sort-arrow"></span></th>
+        <th class="table-header px-4 py-3 text-right sortable-header" data-sort="amount" style="cursor:pointer;user-select:none;">Amount TTC <span class="sort-arrow"></span></th>
+        <th class="table-header px-4 py-3 text-left sortable-header" data-sort="compte" style="cursor:pointer;user-select:none;">Compte <span class="sort-arrow"></span></th>
         <th class="table-header px-4 py-3 text-left">Dossier</th>
-        <th class="table-header px-4 py-3 text-left">Status</th>
+        <th class="table-header px-4 py-3 text-left sortable-header" data-sort="status" style="cursor:pointer;user-select:none;">Status <span class="sort-arrow"></span></th>
         <th class="table-header px-4 py-3 text-center">PDF</th>
       </tr>
     </thead>
@@ -60,7 +60,7 @@
       {% for inv in invoices %}
       {% set sup = inv.suppliers if inv.suppliers is mapping else {} %}
       {% set cli = inv.clients if inv.clients is mapping else {} %}
-      <tr style="border-bottom: 1px solid var(--color-border);" class="hover:bg-gray-50 transition-colors">
+      <tr style="border-bottom: 1px solid var(--color-border);" class="hover:bg-gray-50 transition-colors" data-date="{{ inv.invoice_date or '' }}" data-supplier="{{ (sup.name or inv.supplier_name_raw or '')|lower }}" data-amount="{{ inv.amount_ttc if inv.amount_ttc is not none else 0 }}" data-compte="{{ (inv.compte or '')|lower }}" data-status="{{ inv.classification or '' }}">
         <td class="px-4 py-2.5 whitespace-nowrap mono text-xs">
           {% if inv.invoice_date %}{{ inv.invoice_date[8:10] }}/{{ inv.invoice_date[5:7] }}/{{ inv.invoice_date[0:4] }}{% endif %}
         </td>
@@ -97,7 +97,7 @@
   {% for inv in invoices %}
   {% set sup = inv.suppliers if inv.suppliers is mapping else {} %}
   {% set cli = inv.clients if inv.clients is mapping else {} %}
-  <div class="card px-3 py-3">
+  <div class="card px-3 py-3" data-date="{{ inv.invoice_date or '' }}" data-supplier="{{ (sup.name or inv.supplier_name_raw or '')|lower }}" data-amount="{{ inv.amount_ttc if inv.amount_ttc is not none else 0 }}" data-compte="{{ (inv.compte or '')|lower }}" data-status="{{ inv.classification or '' }}">
     <div class="flex items-start justify-between gap-2 mb-1.5">
       <div class="min-w-0">
         {% if sup.id %}
@@ -133,8 +133,69 @@
 </div>
 {% endif %}
 
+<style>
+.sortable-header:hover { opacity: 0.7; }
+.sort-arrow { font-size: 0.65rem; margin-left: 2px; vertical-align: middle; }
+</style>
+
 <script>
 (function () {
+  /* --- Column sorting --- */
+  var currentSort = { key: 'date', asc: false }; /* default: date DESC */
+  var headers = document.querySelectorAll('.sortable-header');
+  var tbody = document.querySelector('table tbody');
+  var mobileContainer = document.querySelector('.sm\\:hidden.space-y-2');
+
+  function compare(a, b, key, asc) {
+    var va = a.getAttribute('data-' + key) || '';
+    var vb = b.getAttribute('data-' + key) || '';
+    if (key === 'amount') {
+      va = parseFloat(va) || 0;
+      vb = parseFloat(vb) || 0;
+    }
+    var result = va < vb ? -1 : va > vb ? 1 : 0;
+    return asc ? result : -result;
+  }
+
+  function sortElements(container, selector, key, asc) {
+    if (!container) return;
+    var items = Array.prototype.slice.call(container.querySelectorAll(selector));
+    items.sort(function (a, b) { return compare(a, b, key, asc); });
+    items.forEach(function (el) { container.appendChild(el); });
+  }
+
+  function updateArrows() {
+    headers.forEach(function (th) {
+      var arrow = th.querySelector('.sort-arrow');
+      if (th.getAttribute('data-sort') === currentSort.key) {
+        arrow.textContent = currentSort.asc ? '\u25B2' : '\u25BC';
+      } else {
+        arrow.textContent = '';
+      }
+    });
+  }
+
+  function doSort(key) {
+    if (currentSort.key === key) {
+      currentSort.asc = !currentSort.asc;
+    } else {
+      currentSort.key = key;
+      currentSort.asc = true;
+    }
+    sortElements(tbody, 'tr', key, currentSort.asc);
+    sortElements(mobileContainer, '.card', key, currentSort.asc);
+    updateArrows();
+  }
+
+  headers.forEach(function (th) {
+    th.addEventListener('click', function () {
+      doSort(th.getAttribute('data-sort'));
+    });
+  });
+
+  updateArrows(); /* show initial arrow on Date */
+
+  /* --- Export links --- */
   var monthSel = document.getElementById('month-select');
   var clientSel = document.getElementById('client-select');
   var btnXlsx = document.getElementById('btn-xlsx');
