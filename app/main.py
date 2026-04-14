@@ -11,9 +11,10 @@ from app.routes.suppliers import router as suppliers_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # TODO: init APScheduler here (step 8)
+    from app.jobs.scheduler import init_scheduler, shutdown_scheduler
+    init_scheduler()
     yield
-    # TODO: shutdown scheduler
+    shutdown_scheduler()
 
 
 app = FastAPI(title="Ledgerly", lifespan=lifespan)
