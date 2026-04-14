@@ -15,7 +15,7 @@
   </div>
 
   {# Export controls #}
-  <div class="flex items-center gap-3">
+  <div class="flex items-center gap-3 flex-wrap">
     <select id="month-select" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-indigo-500 focus:border-indigo-500">
       {% if months %}
         {% for m in months %}
@@ -24,6 +24,12 @@
       {% else %}
         <option value="">No data</option>
       {% endif %}
+    </select>
+    <select id="client-select" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+      <option value="">All clients</option>
+      {% for c in clients %}
+      <option value="{{ c.id }}">{{ c.name }} ({{ c.code }})</option>
+      {% endfor %}
     </select>
     <a id="btn-xlsx" href="#" class="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-indigo-700">
       {{ icon("download", "w-4 h-4") }} Download .xlsx
@@ -108,16 +114,20 @@
 
 <script>
 (function () {
-  const sel = document.getElementById('month-select');
-  const btnXlsx = document.getElementById('btn-xlsx');
-  const btnCsv = document.getElementById('btn-csv');
+  var monthSel = document.getElementById('month-select');
+  var clientSel = document.getElementById('client-select');
+  var btnXlsx = document.getElementById('btn-xlsx');
+  var btnCsv = document.getElementById('btn-csv');
 
   function update() {
-    const m = sel.value;
-    btnXlsx.href = m ? '/history/export/factures_' + m + '.xlsx' : '#';
-    btnCsv.href = m ? '/history/export/enriched_' + m + '.csv' : '#';
+    var m = monthSel.value;
+    var c = clientSel.value;
+    var qs = c ? '?dossier_client_id=' + c : '';
+    btnXlsx.href = m ? '/history/export/factures_' + m + '.xlsx' + qs : '#';
+    btnCsv.href = m ? '/history/export/enriched_' + m + '.csv' + qs : '#';
   }
-  sel.addEventListener('change', update);
+  monthSel.addEventListener('change', update);
+  clientSel.addEventListener('change', update);
   update();
 })();
 </script>

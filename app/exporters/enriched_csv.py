@@ -14,22 +14,25 @@ HEADERS = [
 ]
 
 
-def build_csv(month: str) -> bytes:
-    """Build enriched CSV for a given month (YYYY-MM). Returns UTF-8 BOM bytes."""
+def build_csv(month: str, dossier_client_id: str | None = None) -> bytes:
+    """Build enriched CSV for a given month (YYYY-MM), optionally filtered by dossier client."""
     sb = get_supabase()
     start = f"{month}-01"
     y, m = int(month[:4]), int(month[5:7])
     end = f"{y + 1}-01-01" if m == 12 else f"{y}-{m + 1:02d}-01"
 
-    rows = (
+    q = (
         sb.table("invoices")
         .select("*, suppliers(name, siret), clients(code)")
         .eq("state", "done")
         .gte("invoice_date", start)
         .lt("invoice_date", end)
         .order("invoice_date")
-        .execute()
-    ).data or []
+    )
+    if dossier_client_id:
+        q = q.eq("dossier_client_id", dossier_client_id)
+
+    rows = q.execute().data or []
 
     buf = StringIO()
     writer = csv.writer(buf, delimiter=";")

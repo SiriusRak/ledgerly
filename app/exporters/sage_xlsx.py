@@ -34,26 +34,25 @@ def _fmt_mois(d: str | None) -> str:
         return d
 
 
-def build_xlsx(month: str) -> bytes:
-    """Build Sage 13-col XLSX for a given month (YYYY-MM). Returns bytes."""
+def build_xlsx(month: str, dossier_client_id: str | None = None) -> bytes:
+    """Build Sage 13-col XLSX for a given month (YYYY-MM), optionally filtered by dossier client."""
     sb = get_supabase()
     start = f"{month}-01"
-    # end of month: use next month
     y, m = int(month[:4]), int(month[5:7])
-    if m == 12:
-        end = f"{y + 1}-01-01"
-    else:
-        end = f"{y}-{m + 1:02d}-01"
+    end = f"{y + 1}-01-01" if m == 12 else f"{y}-{m + 1:02d}-01"
 
-    rows = (
+    q = (
         sb.table("invoices")
         .select("*, suppliers(name)")
         .eq("state", "done")
         .gte("invoice_date", start)
         .lt("invoice_date", end)
         .order("invoice_date")
-        .execute()
-    ).data or []
+    )
+    if dossier_client_id:
+        q = q.eq("dossier_client_id", dossier_client_id)
+
+    rows = q.execute().data or []
 
     wb = openpyxl.Workbook()
     ws = wb.active

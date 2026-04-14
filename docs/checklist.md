@@ -52,7 +52,7 @@
   Acceptance: Page /history liste toutes les invoices done, tri date DESC. Click bouton download → fichier `.xlsx` téléchargé, ouvrable dans Excel/LibreOffice, 13 colonnes exactes, partie double vérifiable (somme débits = somme crédits par invoice). CSV enrichi contient Dossier client + SIRET + Classification.
   Verify: Ouvrir le .xlsx téléchargé, confirmer : en-têtes 13 colonnes, pour une invoice de 120€ TTC (100 HT + 20 TVA), 3 lignes = débit 100 sur 606, débit 20 sur 44566, crédit 120 sur 401. Totaux équilibrés.
 
-- [ ] **8. Suppliers read-only page**
+- [x] **8. Suppliers read-only page**
   Spec ref: `spec.md > Routes > suppliers.py`, `prd.md > Epic 4`
   What to build: `app/routes/suppliers.py` (GET /suppliers, tri `last_seen DESC`). Template `suppliers.html` (table colonnes Supplier/SIRET/Default compte/Default dossier client/Invoices processed/Last seen).
   Acceptance: Page charge, liste tous les suppliers appris avec leurs defaults et compteur d'invoices.

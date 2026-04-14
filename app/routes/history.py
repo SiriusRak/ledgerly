@@ -23,7 +23,7 @@ async def history_page(
     sb = get_supabase()
     q = (
         sb.table("invoices")
-        .select("*, suppliers(id, name), clients(code)")
+        .select("*, suppliers(id, name), clients(id, code, name)")
         .eq("state", "done")
         .order("invoice_date", desc=True)
     )
@@ -37,6 +37,9 @@ async def history_page(
         {inv["invoice_date"][:7] for inv in invoices if inv.get("invoice_date")},
         reverse=True,
     )
+
+    # All clients for dossier selector
+    clients = (sb.table("clients").select("id, code, name").order("name").execute()).data or []
 
     # Supplier name for filter display
     filter_supplier_name = None
@@ -52,6 +55,7 @@ async def history_page(
             "active_tab": "history",
             "invoices": invoices,
             "months": months,
+            "clients": clients,
             "supplier_id": supplier_id,
             "filter_supplier_name": filter_supplier_name,
         },
@@ -59,11 +63,18 @@ async def history_page(
 
 
 @router.get("/history/export/factures_{month}.xlsx")
-async def export_xlsx(month: str):
+async def export_xlsx(month: str, dossier_client_id: str | None = Query(None)):
     if not re.match(r"^\d{4}-\d{2}$", month):
         return StreamingResponse(iter([b""]), status_code=400)
-    data = build_xlsx(month)
-    filename = f"factures_{month}.xlsx"
+    data = build_xlsx(month, dossier_client_id)
+    # Include client code in filename if filtered
+    suffix = ""
+    if dossier_client_id:
+        sb = get_supabase()
+        c = sb.table("clients").select("code").eq("id", dossier_client_id).single().execute()
+        if c.data:
+            suffix = f"_{c.data['code']}"
+    filename = f"factures_{month}{suffix}.xlsx"
     return StreamingResponse(
         iter([data]),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -72,11 +83,17 @@ async def export_xlsx(month: str):
 
 
 @router.get("/history/export/enriched_{month}.csv")
-async def export_csv(month: str):
+async def export_csv(month: str, dossier_client_id: str | None = Query(None)):
     if not re.match(r"^\d{4}-\d{2}$", month):
         return StreamingResponse(iter([b""]), status_code=400)
-    data = build_csv(month)
-    filename = f"enriched_{month}.csv"
+    data = build_csv(month, dossier_client_id)
+    suffix = ""
+    if dossier_client_id:
+        sb = get_supabase()
+        c = sb.table("clients").select("code").eq("id", dossier_client_id).single().execute()
+        if c.data:
+            suffix = f"_{c.data['code']}"
+    filename = f"enriched_{month}{suffix}.csv"
     return StreamingResponse(
         iter([data]),
         media_type="text/csv; charset=utf-8",
