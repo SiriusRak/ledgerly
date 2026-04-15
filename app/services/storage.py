@@ -62,7 +62,13 @@ def move_to_supplier(
 
 
 def signed_url(path: str, expires_in: int = 3600) -> str:
-    """Generate a signed URL for a stored PDF."""
+    """Generate a signed URL for a stored PDF. Returns empty string if the
+    object does not exist or the storage API raises."""
+    if not path:
+        return ""
     sb = get_supabase()
-    resp = sb.storage.from_(BUCKET).create_signed_url(path, expires_in)
+    try:
+        resp = sb.storage.from_(BUCKET).create_signed_url(path, expires_in)
+    except Exception:
+        return ""
     return resp.get("signedURL") or resp.get("signedUrl", "")

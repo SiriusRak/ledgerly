@@ -172,9 +172,10 @@ async def validate_invoice(
         },
     ).execute()
 
-    # Move PDF to supplier folder
+    # Move PDF to supplier folder and persist new path
     try:
-        move_to_supplier(invoice_id, supplier_name, parsed_date, ttc)
+        new_path = move_to_supplier(invoice_id, supplier_name, parsed_date, ttc)
+        sb.table("invoices").update({"pdf_storage_path": new_path}).eq("id", invoice_id).execute()
     except Exception:
         pass  # Non-blocking — PDF stays in inbox if move fails
 

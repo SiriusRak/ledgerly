@@ -133,9 +133,15 @@ async def export_csv(month: str, dossier_client_id: str | None = Query(None)):
 
 @router.get("/history/pdf-url")
 async def pdf_url(path: str = Query(...)):
-    """Return signed URL for a PDF — used by the template."""
+    """Return signed URL for a PDF — used by the template.
+
+    If the object has been moved or no longer exists, return a clean 404
+    instead of bubbling up the Supabase error as a 500.
+    """
+    from fastapi.responses import RedirectResponse, PlainTextResponse
     url = signed_url(path)
-    from fastapi.responses import RedirectResponse
+    if not url:
+        return PlainTextResponse("PDF not available", status_code=404)
     return RedirectResponse(url)
 
 
