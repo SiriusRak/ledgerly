@@ -4,6 +4,8 @@ Assistant d'ingestion de factures pour cabinets comptables français. Les collab
 
 > Pipeline zéro-friction : PDF en entrée, écriture comptable vérifiée en sortie, aucun service payant dans la stack.
 
+**Démo en ligne** : https://ledgerly-2l30.onrender.com
+
 ---
 
 ## Sommaire
