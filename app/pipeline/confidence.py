@@ -5,6 +5,7 @@ def classify(
     fields: dict,
     supplier: dict | None,
     duplicate: dict | None,
+    dossier_client_id: str | None = None,
 ) -> tuple[str, str | None]:
     if duplicate is not None:
         inv_num = duplicate.get("invoice_number", "?")
@@ -12,6 +13,9 @@ def classify(
 
     if supplier is None:
         return ("review", "New supplier")
+
+    if not dossier_client_id:
+        return ("review", "Unknown client")
 
     ht = float(fields.get("amount_ht") or 0)
     tva = float(fields.get("amount_tva") or 0)

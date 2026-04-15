@@ -10,6 +10,9 @@ from app.config import settings
 
 SYSTEM_PROMPT = """Tu extrais les champs comptables d'une facture fournisseur francaise.
 Regles strictes :
+- supplier_name / siret : identite de l'EMETTEUR de la facture (en-tete, logo, coordonnees fournisseur).
+- client_name / client_siret : identite du DESTINATAIRE (bloc "Facture a", "Bill to", "Client", "Adresse de facturation").
+- Ne confonds jamais emetteur et destinataire. Si le destinataire n'est pas identifiable, retourne null pour client_name/client_siret.
 - Ignore les totaux partiels, acomptes, reports, sous-totaux. Retourne UNIQUEMENT le total final.
 - Si plusieurs taux TVA, somme les TVA et retourne le taux majoritaire.
 - Dates au format ISO YYYY-MM-DD.
@@ -19,6 +22,8 @@ Retourne strictement le JSON conforme au schema suivant :
 {
   "supplier_name": "string",
   "siret": "string or null",
+  "client_name": "string or null",
+  "client_siret": "string or null",
   "invoice_date": "YYYY-MM-DD",
   "invoice_number": "string",
   "amount_ht": float,
@@ -34,6 +39,8 @@ TIMEOUT_SECONDS = 15
 class InvoiceFields(BaseModel):
     supplier_name: str
     siret: Optional[str] = None
+    client_name: Optional[str] = None
+    client_siret: Optional[str] = None
     invoice_date: str
     invoice_number: str
     amount_ht: float
@@ -50,9 +57,9 @@ class InvoiceFields(BaseModel):
             return float(v.replace(",", ".").replace(" ", ""))
         return float(v)
 
-    @field_validator("siret", mode="before")
+    @field_validator("siret", "client_siret", "client_name", mode="before")
     @classmethod
-    def coerce_siret(cls, v):
+    def coerce_optional_str(cls, v):
         if v is None:
             return None
         return str(v).strip() or None

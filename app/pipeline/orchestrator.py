@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from app.db import get_supabase
 from app.pipeline.extractor import extract_text
 from app.pipeline.llm import extract_fields
-from app.pipeline.matcher import find_supplier
+from app.pipeline.matcher import find_supplier, find_client
 from app.pipeline.duplicate import find_duplicate
 from app.pipeline.confidence import classify
 from app.services.storage import get_inbox_bytes, move_to_supplier
@@ -46,15 +46,24 @@ def process_invoice(invoice_id: str) -> None:
             "tva_rate": fields.get("tva_rate"),
         }).eq("id", invoice_id).execute()
 
-        # 6. Find supplier
+        # 6. Find supplier + client
         supplier = find_supplier(fields)
+        client = find_client(fields)
+
+        # Resolve dossier_client_id: prefer client extracted from PDF,
+        # fallback to supplier default.
+        dossier_client_id = None
+        if client:
+            dossier_client_id = client.get("id")
+        elif supplier:
+            dossier_client_id = supplier.get("default_dossier_client_id")
 
         # 7. Check duplicates
         supplier_id = supplier["id"] if supplier else None
         duplicate = find_duplicate(fields, supplier_id)
 
         # 8. Classify
-        status, reason = classify(fields, supplier, duplicate)
+        status, reason = classify(fields, supplier, duplicate, dossier_client_id)
 
         # 9. Apply result
         if status == "duplicate":
@@ -81,7 +90,7 @@ def process_invoice(invoice_id: str) -> None:
                 "pdf_storage_path": storage_path,
                 "processed_at": datetime.now(timezone.utc).isoformat(),
                 "compte": supplier.get("default_compte"),
-                "dossier_client_id": supplier.get("default_dossier_client_id"),
+                "dossier_client_id": dossier_client_id,
                 "journal": supplier.get("default_journal", "HA"),
                 "libelle": f"{supplier.get('name', '')} - {fields.get('invoice_number', '')}",
             }
@@ -95,11 +104,14 @@ def process_invoice(invoice_id: str) -> None:
 
         elif status == "review":
             # Keep state='processing' with state_reason set — UI shows "To review"
-            sb.table("invoices").update({
+            review_update = {
                 "state": "processing",
                 "state_reason": reason,
                 "supplier_id": supplier_id,
-            }).eq("id", invoice_id).execute()
+            }
+            if dossier_client_id:
+                review_update["dossier_client_id"] = dossier_client_id
+            sb.table("invoices").update(review_update).eq("id", invoice_id).execute()
 
     except Exception as e:
         logger.exception("Error processing invoice %s", invoice_id)

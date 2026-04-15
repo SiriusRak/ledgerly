@@ -20,6 +20,7 @@ class TestClassify:
             {"amount_ht": 100, "amount_tva": 20, "amount_ttc": 125},
             supplier={"id": "1"},
             duplicate=None,
+            dossier_client_id="c1",
         )
         assert result == ("review", "VAT mismatch: 100.0+20.0!=125.0")
 
@@ -28,5 +29,15 @@ class TestClassify:
             {"amount_ht": 100, "amount_tva": 20, "amount_ttc": 120},
             supplier={"id": "1"},
             duplicate=None,
+            dossier_client_id="c1",
         )
         assert result == ("auto", None)
+
+    def test_unknown_client(self):
+        result = classify(
+            {"amount_ht": 100, "amount_tva": 20, "amount_ttc": 120},
+            supplier={"id": "1"},
+            duplicate=None,
+            dossier_client_id=None,
+        )
+        assert result == ("review", "Unknown client")
